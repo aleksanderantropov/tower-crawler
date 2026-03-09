@@ -1,14 +1,15 @@
 import { Room } from './Room';
 import { type GameMap } from '../types/GameMap';
 import { TileType } from '../types/TileType';
+import type { Settings } from '../configs/settings';
 
 export class DungeonGenerator {
-  width: number;
-  height: number;
+  width: Settings['dungeon']['width'];
+  height: Settings['dungeon']['height'];
   map: GameMap;
   rooms: Room[];
 
-  constructor({ width, height }: { width: number; height: number }) {
+  constructor({ width, height }: Settings['dungeon']) {
     this.width = width;
     this.height = height;
     this.map = Array.from({ length: this.height }, () =>
@@ -18,15 +19,7 @@ export class DungeonGenerator {
   }
 
   // Generates map with Random Room Placement algorythm
-  generateRooms({
-    maxRooms,
-    minSize,
-    maxSize,
-  }: {
-    maxRooms: number;
-    minSize: number;
-    maxSize: number;
-  }) {
+  generateRooms({ maxRooms, minSize, maxSize }: Settings['rooms']) {
     for (let i = 0; i < maxRooms; i++) {
       const newRoom = this.createRoom(minSize, maxSize);
       const intersects = this.checkRoomsIntersection(newRoom);

@@ -1,27 +1,20 @@
 import { type GameMap } from '../types/GameMap';
 import { TileType } from '../types/TileType';
+import { type Settings } from '../configs/settings';
 
 export class CanvasRenderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  tileSize: number;
+  tileSize: Settings['renderer']['tileSize'];
+  colors: Settings['renderer']['colors'];
 
-  constructor({
-    id,
-    tileSize,
-    width,
-    height,
-  }: {
-    id: string;
-    tileSize: number;
-    width: number;
-    height: number;
-  }) {
+  constructor({ id, tileSize, width, height, colors }: Settings['renderer']) {
     this.canvas = document.getElementById(id) as HTMLCanvasElement;
     this.canvas.width = width;
     this.canvas.height = height;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this.tileSize = tileSize;
+    this.colors = colors;
   }
 
   render(map: GameMap): void {
@@ -50,14 +43,16 @@ export class CanvasRenderer {
     }
   }
 
-  private getFillStyle(tile: TileType): string {
+  private getFillStyle(
+    tile: TileType,
+  ): (typeof this.colors)[keyof typeof this.colors] {
     switch (tile) {
       case TileType.FLOOR:
-        return '#2c3e50';
+        return this.colors.floor;
       case TileType.WALL:
-        return '#ecf0f1';
+        return this.colors.wall;
       default:
-        return '#fff';
+        return this.colors.default;
     }
   }
 }
