@@ -136,7 +136,7 @@ export class DungeonGenerator {
     x2: number;
     tileType: TileType;
   }): void {
-    for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); i++) {
+    for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
       this.map[y][x] = tileType;
     }
   }
