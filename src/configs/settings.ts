@@ -16,9 +16,12 @@ export const SETTINGS = {
     width: 640,
     height: 640,
     colors: {
-      floor: '#2c3e50',
-      wall: '#ecf0f1',
-      default: '#fff',
+      player: '#e74c3c',
+      tiles: {
+        floor: '#2c3e50',
+        wall: '#ecf0f1',
+        default: '#fff',
+      },
     },
   },
 } as const;

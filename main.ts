@@ -5,4 +5,6 @@ import { SETTINGS } from './src/configs/settings';
 const dungeon = new DungeonGenerator(SETTINGS.dungeon);
 const map = dungeon.generateRooms(SETTINGS.rooms);
 const renderer = new CanvasRenderer(SETTINGS.renderer);
-renderer.render(map);
+const playerStartRoom = dungeon.rooms[0];
+const player = { x: playerStartRoom.center.x, y: playerStartRoom.center.y };
+renderer.render(map, player);
