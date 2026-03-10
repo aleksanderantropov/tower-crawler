@@ -58,12 +58,23 @@ export class DungeonGenerator {
     }
 
     // Mark all in viewDistance as VISIBLE
-    for (let y = 0; y < this.visibility.length; y++) {
-      for (let x = 0; x < this.visibility[y].length; x++) {
-        const dist = this.getDistance(player, { x, y });
+    for (
+      let y = player.y - this.viewDistance;
+      y <= player.y + this.viewDistance;
+      y++
+    ) {
+      for (
+        let x = player.x - this.viewDistance;
+        x <= player.x + this.viewDistance;
+        x++
+      ) {
+        if (y >= 0 && y <= this.height && x >= 0 && x <= this.width) {
+          // Still need to check distance so the area is circular, not square
+          const dist = this.getDistance(player, { x, y });
 
-        if (dist <= this.viewDistance) {
-          this.visibility[y][x] = Visibility.VISIBLE;
+          if (dist <= this.viewDistance) {
+            this.visibility[y][x] = Visibility.VISIBLE;
+          }
         }
       }
     }
