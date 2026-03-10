@@ -2,6 +2,7 @@ import { Room } from './Room';
 import { type GameMap } from '../types/GameMap';
 import { TileType } from '../types/TileType';
 import type { Settings } from '../configs/settings';
+import type { Point } from '../types/Point';
 
 export class DungeonGenerator {
   width: Settings['dungeon']['width'];
@@ -36,6 +37,10 @@ export class DungeonGenerator {
     }
 
     return this.map;
+  }
+
+  isTileWalkable({ x, y }: Point): boolean {
+    return this.map[y]?.[x] && this.map[y][x] !== TileType.WALL;
   }
 
   // Checks if newRoom intersects with existing rooms

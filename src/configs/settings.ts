@@ -13,6 +13,7 @@ export const SETTINGS = {
   renderer: {
     id: 'canvas',
     tileSize: 32,
+    viewDistance: 3,
     width: 640,
     height: 640,
     colors: {
@@ -20,6 +21,7 @@ export const SETTINGS = {
       tiles: {
         floor: '#2c3e50',
         wall: '#ecf0f1',
+        fog: '#000',
         default: '#fff',
       },
     },
