@@ -4,6 +4,7 @@ export const SETTINGS = {
   dungeon: {
     width: 20,
     height: 20,
+    viewDistance: 3,
   },
   rooms: {
     maxRooms: 50,
@@ -13,7 +14,6 @@ export const SETTINGS = {
   renderer: {
     id: 'canvas',
     tileSize: 32,
-    viewDistance: 3,
     width: 640,
     height: 640,
     colors: {
@@ -23,6 +23,14 @@ export const SETTINGS = {
         wall: '#ecf0f1',
         fog: '#000',
         default: '#fff',
+      },
+    },
+    alpha: {
+      visibility: {
+        hidden: 0,
+        revealed: 0.5,
+        visible: 1,
+        default: 1,
       },
     },
   },

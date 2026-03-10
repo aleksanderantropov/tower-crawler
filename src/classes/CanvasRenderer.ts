@@ -2,13 +2,15 @@ import { type GameMap } from '../types/GameMap';
 import { TileType } from '../types/TileType';
 import { type Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
+import type { VisibilityMap } from '../types/VisibilityMap';
+import { Visibility } from '../types/Visibility';
 
 export class CanvasRenderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   tileSize: Settings['renderer']['tileSize'];
   colors: Settings['renderer']['colors'];
-  viewDistance: Settings['renderer']['viewDistance'];
+  alpha: Settings['renderer']['alpha'];
 
   constructor({
     id,
@@ -16,7 +18,7 @@ export class CanvasRenderer {
     width,
     height,
     colors,
-    viewDistance,
+    alpha,
   }: Settings['renderer']) {
     this.canvas = document.getElementById(id) as HTMLCanvasElement;
     this.canvas.width = width;
@@ -24,12 +26,20 @@ export class CanvasRenderer {
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this.tileSize = tileSize;
     this.colors = colors;
-    this.viewDistance = viewDistance;
+    this.alpha = alpha;
   }
 
-  render(map: GameMap, player: Point): void {
+  render({
+    map,
+    visibility,
+    player,
+  }: {
+    map: GameMap;
+    visibility: VisibilityMap;
+    player: Point;
+  }): void {
     this.clear();
-    this.drawMap(map, player);
+    this.drawMap(map, visibility);
     this.drawPlayer(player);
   }
 
@@ -37,26 +47,25 @@ export class CanvasRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawMap(map: GameMap, player: Point): void {
+  private drawMap(map: GameMap, visibility: VisibilityMap): void {
     for (let y = 0; y < map.length; y++) {
       for (let x = 0; x < map[y].length; x++) {
-        const dist = this.getDistance(player, { x, y });
-        const tile = dist <= this.viewDistance ? map[y][x] : TileType.FOG;
+        const fillStyle = this.getTileFillStyle(map[y][x]);
+        const alpha = this.getAlphaValue(visibility[y][x]);
 
-        this.drawTile({ tile, x, y });
+        this.drawTile({ fillStyle, alpha, x, y });
       }
     }
   }
 
-  private getDistance(player: Point, point: Point): number {
-    const dx = Math.abs(player.x - point.x);
-    const dy = Math.abs(player.y - point.y);
-
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  private drawTile({ tile, x, y }: Point & { tile: TileType }): void {
-    this.ctx.fillStyle = this.getTileFillStyle(tile);
+  private drawTile({
+    fillStyle,
+    alpha,
+    x,
+    y,
+  }: Point & { fillStyle: string; alpha: number }): void {
+    this.ctx.globalAlpha = alpha;
+    this.ctx.fillStyle = fillStyle;
 
     this.ctx.fillRect(
       x * this.tileSize,
@@ -64,6 +73,8 @@ export class CanvasRenderer {
       this.tileSize,
       this.tileSize,
     );
+
+    this.ctx.globalAlpha = this.alpha.visibility.default;
   }
 
   private getTileFillStyle(tile: TileType): string {
@@ -72,10 +83,21 @@ export class CanvasRenderer {
         return this.colors.tiles.floor;
       case TileType.WALL:
         return this.colors.tiles.wall;
-      case TileType.FOG:
-        return this.colors.tiles.fog;
       default:
         return this.colors.tiles.default;
+    }
+  }
+
+  private getAlphaValue(visibility: Visibility): number {
+    switch (visibility) {
+      case Visibility.HIDDEN:
+        return this.alpha.visibility.hidden;
+      case Visibility.REVEALED:
+        return this.alpha.visibility.revealed;
+      case Visibility.VISIBLE:
+        return this.alpha.visibility.visible;
+      default:
+        return this.alpha.visibility.default;
     }
   }
 

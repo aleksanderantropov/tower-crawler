@@ -7,6 +7,7 @@ import type { Move } from './src/types/Move';
 
 const dungeon = new DungeonGenerator(SETTINGS.dungeon);
 const map = dungeon.generateRooms(SETTINGS.rooms);
+const visibility = dungeon.visibility;
 const renderer = new CanvasRenderer(SETTINGS.renderer);
 const playerStartRoom = dungeon.rooms[0];
 const player = new Player(playerStartRoom.center.x, playerStartRoom.center.y);
@@ -16,8 +17,10 @@ new InputHandler(({ dx, dy }: Move) => {
 
   if (dungeon.isTileWalkable(nextMove)) {
     player.setPos(nextMove);
-    renderer.render(map, player);
+    dungeon.updateVisibility(player);
+    renderer.render({ map, visibility, player });
   }
 });
 
-renderer.render(map, player);
+dungeon.updateVisibility(player);
+renderer.render({ map, visibility, player });

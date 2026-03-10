@@ -3,18 +3,26 @@ import { type GameMap } from '../types/GameMap';
 import { TileType } from '../types/TileType';
 import type { Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
+import type { VisibilityMap } from '../types/VisibilityMap';
+import { Visibility } from '../types/Visibility';
 
 export class DungeonGenerator {
   width: Settings['dungeon']['width'];
   height: Settings['dungeon']['height'];
+  viewDistance: Settings['dungeon']['viewDistance'];
   map: GameMap;
+  visibility: VisibilityMap;
   rooms: Room[];
 
-  constructor({ width, height }: Settings['dungeon']) {
+  constructor({ width, height, viewDistance }: Settings['dungeon']) {
     this.width = width;
     this.height = height;
+    this.viewDistance = viewDistance;
     this.map = Array.from({ length: this.height }, () =>
       Array(width).fill(TileType.WALL),
+    );
+    this.visibility = Array.from({ length: this.height }, () =>
+      Array(width).fill(Visibility.HIDDEN),
     );
     this.rooms = [];
   }
@@ -39,8 +47,37 @@ export class DungeonGenerator {
     return this.map;
   }
 
+  updateVisibility(player: Point): void {
+    // Mark all VISIBLE as REVEALED
+    for (let y = 0; y < this.visibility.length; y++) {
+      for (let x = 0; x < this.visibility[y].length; x++) {
+        if (this.visibility[y][x] === Visibility.VISIBLE) {
+          this.visibility[y][x] = Visibility.REVEALED;
+        }
+      }
+    }
+
+    // Mark all in viewDistance as VISIBLE
+    for (let y = 0; y < this.visibility.length; y++) {
+      for (let x = 0; x < this.visibility[y].length; x++) {
+        const dist = this.getDistance(player, { x, y });
+
+        if (dist <= this.viewDistance) {
+          this.visibility[y][x] = Visibility.VISIBLE;
+        }
+      }
+    }
+  }
+
   isTileWalkable({ x, y }: Point): boolean {
     return this.map[y]?.[x] && this.map[y][x] !== TileType.WALL;
+  }
+
+  private getDistance(player: Point, point: Point): number {
+    const dx = Math.abs(player.x - point.x);
+    const dy = Math.abs(player.y - point.y);
+
+    return Math.sqrt(dx * dx + dy * dy);
   }
 
   // Checks if newRoom intersects with existing rooms
