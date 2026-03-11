@@ -8,6 +8,7 @@ export class VisibilityMap {
   height: number;
   viewDistance: number;
   visibility: Visibility[][];
+  visibleTiles: Point[];
 
   constructor({
     width,
@@ -21,6 +22,7 @@ export class VisibilityMap {
     this.width = width;
     this.height = height;
     this.viewDistance = viewDistance;
+    this.visibleTiles = [];
 
     this.visibility = Array.from({ length: this.height }, () =>
       Array(width).fill(Visibility.HIDDEN),
@@ -29,49 +31,48 @@ export class VisibilityMap {
 
   update(player: Point, tiles: GameMap['tiles']): void {
     // Mark all VISIBLE as REVEALED
-    for (let y = 0; y < this.visibility.length; y++) {
-      for (let x = 0; x < this.visibility[y].length; x++) {
-        if (this.visibility[y][x] === Visibility.VISIBLE) {
-          this.visibility[y][x] = Visibility.REVEALED;
-        }
-      }
-    }
+    this.visibleTiles.forEach(
+      ({ x, y }) => (this.visibility[y][x] = Visibility.REVEALED),
+    );
+    this.visibleTiles = [];
 
-    // Mark all in viewDistance as VISIBLE
-    for (
-      let y = player.y - this.viewDistance;
-      y <= player.y + this.viewDistance;
-      y++
-    ) {
-      for (
-        let x = player.x - this.viewDistance;
-        x <= player.x + this.viewDistance;
-        x++
-      ) {
-        if (y >= 0 && y < this.height && x >= 0 && x < this.width) {
-          // Still need to check distance so the area is circular, not square
-          const dist = this.getDistance(player, { x, y });
+    // Mark all in viewDistance and along the line as VISIBLE
+    const initialY = player.y - this.viewDistance;
+    const maxY = player.y + this.viewDistance;
+    const initialX = player.x - this.viewDistance;
+    const maxX = player.x + this.viewDistance;
 
-          if (dist <= this.viewDistance) {
-            const points = this.getLine(player, { x, y });
+    for (let y = initialY; y <= maxY; y++) {
+      for (let x = initialX; x <= maxX; x++) {
+        // Check only on viewDistance perimeter and within map
+        const isOnViewDistancePerimeter =
+          x === initialX || x === maxX || y === initialY || y === maxY;
 
-            for (let i = 0; i < points.length; i++) {
-              const point = points[i];
+        if (isOnViewDistancePerimeter && this.isPointWithinMap({ x, y })) {
+          const points = this.getPointsAlongLine(player, { x, y });
 
-              this.visibility[point.y][point.x] = Visibility.VISIBLE;
-
-              if (tiles[point.y][point.x] === TileType.WALL) {
-                break;
-              }
+          for (const point of points) {
+            // Still need to check total distance so the area is circular, not square
+            if (
+              !this.isWithinViewDistance(player, point) ||
+              tiles[point.y][point.x] === TileType.WALL
+            ) {
+              break;
             }
+
+            this.visibility[point.y][point.x] = Visibility.VISIBLE;
+            this.visibleTiles.push(point);
           }
         }
       }
     }
   }
 
-  // Bresenham’s algorithm
-  private getLine({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): Point[] {
+  // Bresenham’s algorithm of "raycasting"
+  private getPointsAlongLine(
+    { x: x1, y: y1 }: Point,
+    { x: x2, y: y2 }: Point,
+  ): Point[] {
     const points = [];
 
     // Abs difference between two points
@@ -109,10 +110,15 @@ export class VisibilityMap {
     return points;
   }
 
-  private getDistance(player: Point, point: Point): number {
+  // Checks the point lies within viewDistance of the player
+  private isWithinViewDistance(player: Point, point: Point): boolean {
     const dx = Math.abs(player.x - point.x);
     const dy = Math.abs(player.y - point.y);
 
-    return Math.sqrt(dx * dx + dy * dy);
+    return dx * dx + dy * dy <= this.viewDistance * this.viewDistance;
+  }
+
+  private isPointWithinMap({ x, y }: Point): boolean {
+    return x >= 0 && x <= this.width && y >= 0 && y <= this.height;
   }
 }
