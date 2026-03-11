@@ -1,15 +1,15 @@
-import { TileType } from '../types/TileType';
-
 export const SETTINGS = {
-  dungeon: {
+  gameMap: {
     width: 20,
     height: 20,
-    viewDistance: 3,
+    rooms: {
+      maxRooms: 50,
+      minSize: 2,
+      maxSize: 4,
+    },
   },
-  rooms: {
-    maxRooms: 50,
-    minSize: 2,
-    maxSize: 4,
+  visibilityMap: {
+    viewDistance: 3,
   },
   renderer: {
     id: 'canvas',

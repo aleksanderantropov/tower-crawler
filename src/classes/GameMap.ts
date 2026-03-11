@@ -1,34 +1,31 @@
-import { Room } from './Room';
-import { type GameMap } from '../types/GameMap';
-import { TileType } from '../types/TileType';
 import type { Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
-import type { VisibilityMap } from '../types/VisibilityMap';
-import { Visibility } from '../types/Visibility';
+import { TileType } from '../types/TileType';
+import { Room } from './Room';
 
-export class DungeonGenerator {
-  width: Settings['dungeon']['width'];
-  height: Settings['dungeon']['height'];
-  viewDistance: Settings['dungeon']['viewDistance'];
-  map: GameMap;
-  visibility: VisibilityMap;
+export class GameMap {
+  width: number;
+  height: number;
+  tiles: TileType[][];
   rooms: Room[];
 
-  constructor({ width, height, viewDistance }: Settings['dungeon']) {
+  constructor({ width, height, rooms }: Settings['gameMap']) {
     this.width = width;
     this.height = height;
-    this.viewDistance = viewDistance;
-    this.map = Array.from({ length: this.height }, () =>
-      Array(width).fill(TileType.WALL),
-    );
-    this.visibility = Array.from({ length: this.height }, () =>
-      Array(width).fill(Visibility.HIDDEN),
+    this.tiles = Array.from({ length: this.height }, () =>
+      Array(this.width).fill(TileType.WALL),
     );
     this.rooms = [];
+
+    this.generate(rooms);
   }
 
   // Generates map with Random Room Placement algorythm
-  generateRooms({ maxRooms, minSize, maxSize }: Settings['rooms']) {
+  private generate({
+    maxRooms,
+    minSize,
+    maxSize,
+  }: Settings['gameMap']['rooms']) {
     for (let i = 0; i < maxRooms; i++) {
       const newRoom = this.createRoom(minSize, maxSize);
       const intersects = this.checkRoomsIntersection(newRoom);
@@ -43,52 +40,10 @@ export class DungeonGenerator {
         this.rooms.push(newRoom);
       }
     }
-
-    return this.map;
-  }
-
-  updateVisibility(player: Point): void {
-    // Mark all VISIBLE as REVEALED
-    for (let y = 0; y < this.visibility.length; y++) {
-      for (let x = 0; x < this.visibility[y].length; x++) {
-        if (this.visibility[y][x] === Visibility.VISIBLE) {
-          this.visibility[y][x] = Visibility.REVEALED;
-        }
-      }
-    }
-
-    // Mark all in viewDistance as VISIBLE
-    for (
-      let y = player.y - this.viewDistance;
-      y <= player.y + this.viewDistance;
-      y++
-    ) {
-      for (
-        let x = player.x - this.viewDistance;
-        x <= player.x + this.viewDistance;
-        x++
-      ) {
-        if (y >= 0 && y <= this.height && x >= 0 && x <= this.width) {
-          // Still need to check distance so the area is circular, not square
-          const dist = this.getDistance(player, { x, y });
-
-          if (dist <= this.viewDistance) {
-            this.visibility[y][x] = Visibility.VISIBLE;
-          }
-        }
-      }
-    }
   }
 
   isTileWalkable({ x, y }: Point): boolean {
-    return this.map[y]?.[x] && this.map[y][x] !== TileType.WALL;
-  }
-
-  private getDistance(player: Point, point: Point): number {
-    const dx = Math.abs(player.x - point.x);
-    const dy = Math.abs(player.y - point.y);
-
-    return Math.sqrt(dx * dx + dy * dy);
+    return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.WALL;
   }
 
   // Checks if newRoom intersects with existing rooms
@@ -115,7 +70,7 @@ export class DungeonGenerator {
   private fillRoom(room: Room, tileType: TileType): void {
     for (let i = room.top; i < room.bottom; i++) {
       for (let j = room.left; j < room.right; j++) {
-        this.map[i][j] = tileType;
+        this.tiles[i][j] = tileType;
       }
     }
   }
@@ -167,7 +122,7 @@ export class DungeonGenerator {
     tileType: TileType;
   }): void {
     for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
-      this.map[y][x] = tileType;
+      this.tiles[y][x] = tileType;
     }
   }
 
@@ -183,7 +138,7 @@ export class DungeonGenerator {
     tileType: TileType;
   }): void {
     for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
-      this.map[y][x] = tileType;
+      this.tiles[y][x] = tileType;
     }
   }
 }
