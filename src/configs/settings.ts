@@ -10,12 +10,17 @@ export const SETTINGS = {
       maxSize: 4,
     },
   },
-  visibilityMap: {
-    viewDistance: 3,
+  player: {
+    view: 3,
+    hp: 20,
+    attack: 5,
   },
   enemies: {
-    aggroRadius: {
-      [EnemyType.SLIME]: 8,
+    [EnemyType.SLIME]: {
+      type: EnemyType.SLIME,
+      view: 8,
+      hp: 5,
+      attack: 2,
     },
   },
   renderer: {

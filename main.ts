@@ -9,22 +9,20 @@ import { EnemyType } from './src/types/EnemyType';
 import type { Move } from './src/types/Move';
 
 const gameMap = new GameMap(SETTINGS.gameMap);
-const visibilityMap = new VisibilityMap({
-  width: gameMap.width,
-  height: gameMap.height,
-  viewDistance: SETTINGS.visibilityMap.viewDistance,
-});
+const visibilityMap = new VisibilityMap(SETTINGS.gameMap);
 const renderer = new CanvasRenderer(SETTINGS.renderer);
-
-const playerStartRoom = gameMap.rooms[0];
-const player = new Player(playerStartRoom.center.x, playerStartRoom.center.y);
-const enemies = gameMap.rooms.slice(1).map(
+const [playerRoom, ...enemiesRoom] = gameMap.rooms;
+const player = new Player({
+  x: playerRoom.center.x,
+  y: playerRoom.center.y,
+  ...SETTINGS.player,
+});
+const enemies = enemiesRoom.map(
   (room) =>
     new Enemy({
       x: room.center.x,
       y: room.center.y,
-      type: EnemyType.SLIME,
-      aggroRadius: SETTINGS.enemies.aggroRadius[EnemyType.SLIME],
+      ...SETTINGS.enemies[EnemyType.SLIME],
     }),
 );
 

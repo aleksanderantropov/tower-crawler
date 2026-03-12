@@ -2,6 +2,7 @@ import type { Move } from '../types/Move';
 
 export class InputHandler {
   onMove: (move: Move) => void;
+
   constructor(onMove: (move: Move) => void) {
     this.onMove = onMove;
     window.addEventListener('keydown', (e) => this.handleKeyDown(e));

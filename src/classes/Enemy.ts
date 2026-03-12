@@ -1,23 +1,31 @@
+import type { Settings } from '../configs/settings';
+import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
 import type { Point } from '../types/Point';
 import { GameMap } from './GameMap';
 
-export class Enemy {
+export class Enemy implements Point, Combatant {
   x: number;
   y: number;
-  type: EnemyType;
-  aggroRadius: number;
+  type: Settings['enemies'][EnemyType]['type'];
+  view: Settings['enemies'][EnemyType]['view'];
+  attack: Settings['enemies'][EnemyType]['attack'];
+  hp: Settings['enemies'][EnemyType]['hp'];
 
   constructor({
     x,
     y,
     type,
-    aggroRadius,
-  }: Point & { type: EnemyType; aggroRadius: number }) {
+    view,
+    attack,
+    hp,
+  }: Point & Settings['enemies'][EnemyType]) {
     this.x = x;
     this.y = y;
     this.type = type;
-    this.aggroRadius = aggroRadius;
+    this.view = view;
+    this.attack = attack;
+    this.hp = hp;
   }
 
   moveTowards(point: Point, gameMap: GameMap): void {
@@ -34,6 +42,6 @@ export class Enemy {
   isWithinAggroRadius(point: Point): boolean {
     const dist = GameMap.calcDistance(this, point);
 
-    return dist <= this.aggroRadius;
+    return dist <= this.view;
   }
 }

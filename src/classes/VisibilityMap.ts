@@ -1,27 +1,22 @@
+import type { Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
 import { TileType } from '../types/TileType';
 import { Visibility } from '../types/Visibility';
 import type { GameMap } from './GameMap';
+import type { Player } from './Player';
 
 export class VisibilityMap {
-  width: number;
-  height: number;
-  viewDistance: number;
+  width: Settings['gameMap']['width'];
+  height: Settings['gameMap']['height'];
   visibility: Visibility[][];
   visibleTiles: Point[];
 
   constructor({
     width,
     height,
-    viewDistance,
-  }: {
-    width: number;
-    height: number;
-    viewDistance: number;
-  }) {
+  }: Pick<Settings['gameMap'], 'height' | 'width'>) {
     this.width = width;
     this.height = height;
-    this.viewDistance = viewDistance;
     this.visibleTiles = [];
 
     this.visibility = Array.from({ length: this.height }, () =>
@@ -29,26 +24,26 @@ export class VisibilityMap {
     );
   }
 
-  update(player: Point, tiles: GameMap['tiles']): void {
+  update(player: Player, tiles: GameMap['tiles']): void {
     // Mark all VISIBLE as REVEALED
     this.visibleTiles.forEach(
       ({ x, y }) => (this.visibility[y][x] = Visibility.REVEALED),
     );
     this.visibleTiles = [];
 
-    // Mark all in viewDistance and along the line as VISIBLE
-    const initialY = player.y - this.viewDistance;
-    const maxY = player.y + this.viewDistance;
-    const initialX = player.x - this.viewDistance;
-    const maxX = player.x + this.viewDistance;
+    // Mark all in view and along the line as VISIBLE
+    const initialY = player.y - player.view;
+    const maxY = player.y + player.view;
+    const initialX = player.x - player.view;
+    const maxX = player.x + player.view;
 
     for (let y = initialY; y <= maxY; y++) {
       for (let x = initialX; x <= maxX; x++) {
-        // Check only on viewDistance perimeter and within map
-        const isOnViewDistancePerimeter =
+        // Check only on view perimeter and within map
+        const isOnviewPerimeter =
           x === initialX || x === maxX || y === initialY || y === maxY;
 
-        if (!isOnViewDistancePerimeter || !this.isPointWithinMap({ x, y })) {
+        if (!isOnviewPerimeter || !this.isPointWithinMap({ x, y })) {
           continue;
         }
 
@@ -57,7 +52,7 @@ export class VisibilityMap {
         for (const point of points) {
           // Still need to check total distance so the area is circular, not square
           if (
-            !this.isWithinViewDistance(player, point) ||
+            !this.isWithinview(player, point) ||
             tiles[point.y][point.x] === TileType.WALL
           ) {
             break;
@@ -112,12 +107,12 @@ export class VisibilityMap {
     return points;
   }
 
-  // Checks the point lies within viewDistance of the player
-  private isWithinViewDistance(player: Point, point: Point): boolean {
+  // Checks the point lies within view of the player
+  private isWithinview(player: Player, point: Point): boolean {
     const dx = Math.abs(player.x - point.x);
     const dy = Math.abs(player.y - point.y);
 
-    return dx * dx + dy * dy <= this.viewDistance * this.viewDistance;
+    return dx * dx + dy * dy <= player.view * player.view;
   }
 
   private isPointWithinMap({ x, y }: Point): boolean {
