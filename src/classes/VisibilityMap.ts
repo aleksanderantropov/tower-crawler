@@ -48,21 +48,23 @@ export class VisibilityMap {
         const isOnViewDistancePerimeter =
           x === initialX || x === maxX || y === initialY || y === maxY;
 
-        if (isOnViewDistancePerimeter && this.isPointWithinMap({ x, y })) {
-          const points = this.getPointsAlongLine(player, { x, y });
+        if (!isOnViewDistancePerimeter || !this.isPointWithinMap({ x, y })) {
+          continue;
+        }
 
-          for (const point of points) {
-            // Still need to check total distance so the area is circular, not square
-            if (
-              !this.isWithinViewDistance(player, point) ||
-              tiles[point.y][point.x] === TileType.WALL
-            ) {
-              break;
-            }
+        const points = this.getPointsAlongLine(player, { x, y });
 
-            this.visibility[point.y][point.x] = Visibility.VISIBLE;
-            this.visibleTiles.push(point);
+        for (const point of points) {
+          // Still need to check total distance so the area is circular, not square
+          if (
+            !this.isWithinViewDistance(player, point) ||
+            tiles[point.y][point.x] === TileType.WALL
+          ) {
+            break;
           }
+
+          this.visibility[point.y][point.x] = Visibility.VISIBLE;
+          this.visibleTiles.push(point);
         }
       }
     }
