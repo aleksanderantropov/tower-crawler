@@ -1,9 +1,10 @@
-import { type GameMap } from '../types/GameMap';
 import { TileType } from '../types/TileType';
 import { type Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
-import type { VisibilityMap } from '../types/VisibilityMap';
+import type { VisibilityMap } from './VisibilityMap';
 import { Visibility } from '../types/Visibility';
+import type { GameMap } from './GameMap';
+import type { Enemy } from './Enemy';
 
 export class CanvasRenderer {
   canvas: HTMLCanvasElement;
@@ -30,27 +31,33 @@ export class CanvasRenderer {
   }
 
   render({
-    map,
+    tiles,
     visibility,
     player,
+    enemies,
   }: {
-    map: GameMap;
-    visibility: VisibilityMap;
+    tiles: GameMap['tiles'];
+    visibility: VisibilityMap['visibility'];
     player: Point;
+    enemies: Enemy[];
   }): void {
     this.clear();
-    this.drawMap(map, visibility);
+    this.drawMap(tiles, visibility);
     this.drawPlayer(player);
+    this.drawEnemies(enemies, visibility);
   }
 
   private clear(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawMap(map: GameMap, visibility: VisibilityMap): void {
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < map[y].length; x++) {
-        const fillStyle = this.getTileFillStyle(map[y][x]);
+  private drawMap(
+    tiles: GameMap['tiles'],
+    visibility: VisibilityMap['visibility'],
+  ): void {
+    for (let y = 0; y < tiles.length; y++) {
+      for (let x = 0; x < tiles[y].length; x++) {
+        const fillStyle = this.getTileFillStyle(tiles[y][x]);
         const alpha = this.getAlphaValue(visibility[y][x]);
 
         this.drawTile({ fillStyle, alpha, x, y });
@@ -111,5 +118,26 @@ export class CanvasRenderer {
     this.ctx.arc(centerX, centerY, this.tileSize / 3, 0, Math.PI * 2);
 
     this.ctx.fill();
+  }
+
+  private drawEnemies(
+    enemies: Enemy[],
+    visibility: VisibilityMap['visibility'],
+  ): void {
+    enemies.forEach((enemy) => {
+      if (visibility[enemy.y][enemy.x] !== Visibility.VISIBLE) {
+        return;
+      }
+
+      this.ctx.fillStyle = this.colors.enemies[enemy.type];
+      this.ctx.beginPath();
+
+      this.ctx.fillRect(
+        enemy.x * this.tileSize + 4,
+        enemy.y * this.tileSize + 4,
+        this.tileSize - 8,
+        this.tileSize - 8,
+      );
+    });
   }
 }

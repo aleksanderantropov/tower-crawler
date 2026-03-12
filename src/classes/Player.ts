@@ -13,7 +13,7 @@ export class Player {
     };
   }
 
-  setPos({ x, y }: Point) {
+  move({ x, y }: Point) {
     [this.x, this.y] = [x, y];
   }
 }

@@ -1,6 +1,3 @@
-import { type GameMap } from '../types/GameMap';
-import { TileType } from '../types/TileType';
-
 export class Room {
   readonly left: number;
   readonly right: number;

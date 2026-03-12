@@ -46,6 +46,13 @@ export class GameMap {
     return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.WALL;
   }
 
+  static calcDistance(p1: Point, p2: Point): number {
+    const dx = Math.abs(p1.x - p2.x);
+    const dy = Math.abs(p1.y - p2.y);
+
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
   // Checks if newRoom intersects with existing rooms
   private checkRoomsIntersection(newRoom: Room): boolean {
     return this.rooms.some((existingRoom) =>

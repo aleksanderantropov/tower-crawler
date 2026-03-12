@@ -1,3 +1,5 @@
+import { EnemyType } from '../types/EnemyType';
+
 export const SETTINGS = {
   gameMap: {
     width: 20,
@@ -11,6 +13,11 @@ export const SETTINGS = {
   visibilityMap: {
     viewDistance: 3,
   },
+  enemies: {
+    aggroRadius: {
+      [EnemyType.SLIME]: 8,
+    },
+  },
   renderer: {
     id: 'canvas',
     tileSize: 32,
@@ -18,6 +25,9 @@ export const SETTINGS = {
     height: 640,
     colors: {
       player: '#e74c3c',
+      enemies: {
+        [EnemyType.SLIME]: '#f1c40f',
+      },
       tiles: {
         floor: '#2c3e50',
         wall: '#ecf0f1',
