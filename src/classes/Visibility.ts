@@ -24,7 +24,7 @@ export class Visibility {
     );
   }
 
-  update(player: Player, tiles: Map['tiles']): void {
+  update(player: Player, mapTiles: Map['tiles']): void {
     // Mark all VISIBLE as REVEALED
     this.visibleTiles.forEach(
       ({ x, y }) => (this.tiles[y][x] = VisibilityType.REVEALED),
@@ -43,7 +43,7 @@ export class Visibility {
         const isOnviewPerimeter =
           x === initialX || x === maxX || y === initialY || y === maxY;
 
-        if (!isOnviewPerimeter || !this.isPointWithinMap({ x, y })) {
+        if (!isOnviewPerimeter) {
           continue;
         }
 
@@ -53,7 +53,8 @@ export class Visibility {
           // Still need to check total distance so the area is circular, not square
           if (
             !this.isTileWithinView(player, tile) ||
-            tiles[tile.y][tile.x] === TileType.WALL
+            !this.isPointWithinMap(tile) ||
+            mapTiles[tile.y][tile.x] === TileType.WALL
           ) {
             break;
           }
@@ -116,6 +117,6 @@ export class Visibility {
   }
 
   private isPointWithinMap({ x, y }: Tile): boolean {
-    return x >= 0 && x <= this.width && y >= 0 && y <= this.height;
+    return x >= 0 && x < this.width && y >= 0 && y < this.height;
   }
 }

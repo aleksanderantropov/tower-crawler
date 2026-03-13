@@ -8,6 +8,7 @@ import { Input } from './Input';
 import { Player } from './Player';
 import { Visibility } from './Visibility';
 import type { Tile } from '../types/Tile';
+import { Stats } from './Stats';
 
 export class Game {
   private map: Map;
@@ -16,6 +17,7 @@ export class Game {
   private player: Player;
   private enemies: Enemy[];
   private input: Input;
+  private stats: Stats;
 
   constructor(settings: Settings) {
     this.map = new Map(settings.gameMap);
@@ -37,6 +39,7 @@ export class Game {
     );
 
     this.input = new Input(this.handleMove);
+    this.stats = new Stats(this.player, settings.stats);
   }
 
   handleMove = (input: Move) => {
@@ -99,6 +102,7 @@ export class Game {
   }
 
   private render(): void {
+    this.stats.update();
     this.renderer.render({
       tiles: this.map.tiles,
       visibility: this.visibility.tiles,

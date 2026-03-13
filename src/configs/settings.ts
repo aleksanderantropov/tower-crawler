@@ -49,6 +49,9 @@ export const SETTINGS = {
       },
     },
   },
+  stats: {
+    id: 'stats',
+  },
 } as const;
 
 export type Settings = typeof SETTINGS;
