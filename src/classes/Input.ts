@@ -1,6 +1,6 @@
 import type { Move } from '../types/Move';
 
-export class InputHandler {
+export class Input {
   onMove: (move: Move) => void;
 
   constructor(onMove: (move: Move) => void) {

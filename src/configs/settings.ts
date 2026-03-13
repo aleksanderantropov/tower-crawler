@@ -13,14 +13,14 @@ export const SETTINGS = {
   player: {
     view: 3,
     hp: 20,
-    attack: 5,
+    power: 5,
   },
   enemies: {
     [EnemyType.SLIME]: {
       type: EnemyType.SLIME,
       view: 8,
       hp: 5,
-      attack: 2,
+      power: 2,
     },
   },
   renderer: {

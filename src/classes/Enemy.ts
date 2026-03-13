@@ -2,14 +2,14 @@ import type { Settings } from '../configs/settings';
 import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
 import type { Point } from '../types/Point';
-import { GameMap } from './GameMap';
+import { Map } from './Map';
 
 export class Enemy implements Point, Combatant {
   x: number;
   y: number;
   type: Settings['enemies'][EnemyType]['type'];
   view: Settings['enemies'][EnemyType]['view'];
-  attack: Settings['enemies'][EnemyType]['attack'];
+  power: Settings['enemies'][EnemyType]['power'];
   hp: Settings['enemies'][EnemyType]['hp'];
 
   constructor({
@@ -17,18 +17,21 @@ export class Enemy implements Point, Combatant {
     y,
     type,
     view,
-    attack,
+    power,
     hp,
   }: Point & Settings['enemies'][EnemyType]) {
     this.x = x;
     this.y = y;
     this.type = type;
     this.view = view;
-    this.attack = attack;
+    this.power = power;
     this.hp = hp;
   }
+  attack(enemy: Enemy): void {
+    throw new Error('Method not implemented.');
+  }
 
-  moveTowards(point: Point, gameMap: GameMap): void {
+  moveTowards(point: Point, gameMap: Map): void {
     const dx = Math.sign(point.x - this.x);
     const dy = Math.sign(point.y - this.y);
 
@@ -40,7 +43,7 @@ export class Enemy implements Point, Combatant {
   }
 
   isWithinAggroRadius(point: Point): boolean {
-    const dist = GameMap.calcDistance(this, point);
+    const dist = Map.calcDistance(this, point);
 
     return dist <= this.view;
   }

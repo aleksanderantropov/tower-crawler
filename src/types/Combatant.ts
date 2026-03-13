@@ -1,5 +1,8 @@
+import type { Enemy } from '../classes/Enemy';
+
 export type Combatant = {
   hp: number;
-  attack: number;
+  power: number;
   view: number;
+  attack(enemy: Enemy): void;
 };

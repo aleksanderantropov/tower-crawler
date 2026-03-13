@@ -3,7 +3,7 @@ import type { Point } from '../types/Point';
 import { TileType } from '../types/TileType';
 import { Room } from './Room';
 
-export class GameMap {
+export class Map {
   width: number;
   height: number;
   tiles: TileType[][];

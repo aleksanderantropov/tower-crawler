@@ -1,12 +1,12 @@
 import { TileType } from '../types/TileType';
 import { type Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
-import type { VisibilityMap } from './VisibilityMap';
-import { Visibility } from '../types/Visibility';
-import type { GameMap } from './GameMap';
+import type { Visibility } from './Visibility';
+import { VisibilityType } from '../types/VisibilityType';
+import type { Map } from './Map';
 import type { Enemy } from './Enemy';
 
-export class CanvasRenderer {
+export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   tileSize: Settings['renderer']['tileSize'];
@@ -36,8 +36,8 @@ export class CanvasRenderer {
     player,
     enemies,
   }: {
-    tiles: GameMap['tiles'];
-    visibility: VisibilityMap['visibility'];
+    tiles: Map['tiles'];
+    visibility: Visibility['tiles'];
     player: Point;
     enemies: Enemy[];
   }): void {
@@ -51,10 +51,7 @@ export class CanvasRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawMap(
-    tiles: GameMap['tiles'],
-    visibility: VisibilityMap['visibility'],
-  ): void {
+  private drawMap(tiles: Map['tiles'], visibility: Visibility['tiles']): void {
     for (let y = 0; y < tiles.length; y++) {
       for (let x = 0; x < tiles[y].length; x++) {
         const fillStyle = this.getTileFillStyle(tiles[y][x]);
@@ -95,13 +92,13 @@ export class CanvasRenderer {
     }
   }
 
-  private getAlphaValue(visibility: Visibility): number {
+  private getAlphaValue(visibility: VisibilityType): number {
     switch (visibility) {
-      case Visibility.HIDDEN:
+      case VisibilityType.HIDDEN:
         return this.alpha.visibility.hidden;
-      case Visibility.REVEALED:
+      case VisibilityType.REVEALED:
         return this.alpha.visibility.revealed;
-      case Visibility.VISIBLE:
+      case VisibilityType.VISIBLE:
         return this.alpha.visibility.visible;
       default:
         return this.alpha.visibility.default;
@@ -120,12 +117,9 @@ export class CanvasRenderer {
     this.ctx.fill();
   }
 
-  private drawEnemies(
-    enemies: Enemy[],
-    visibility: VisibilityMap['visibility'],
-  ): void {
+  private drawEnemies(enemies: Enemy[], visibility: Visibility['tiles']): void {
     enemies.forEach((enemy) => {
-      if (visibility[enemy.y][enemy.x] !== Visibility.VISIBLE) {
+      if (visibility[enemy.y][enemy.x] !== VisibilityType.VISIBLE) {
         return;
       }
 

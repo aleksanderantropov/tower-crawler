@@ -1,3 +1,5 @@
+import type { Point } from '../types/Point';
+
 export class Room {
   readonly left: number;
   readonly right: number;
@@ -5,7 +7,7 @@ export class Room {
   readonly bottom: number;
   readonly width: number;
   readonly height: number;
-  readonly center: { x: number; y: number };
+  readonly center: Point;
 
   constructor({
     width,

@@ -1,14 +1,14 @@
 import type { Settings } from '../configs/settings';
 import type { Point } from '../types/Point';
 import { TileType } from '../types/TileType';
-import { Visibility } from '../types/Visibility';
-import type { GameMap } from './GameMap';
+import { VisibilityType } from '../types/VisibilityType';
+import type { Map } from './Map';
 import type { Player } from './Player';
 
-export class VisibilityMap {
+export class Visibility {
   width: Settings['gameMap']['width'];
   height: Settings['gameMap']['height'];
-  visibility: Visibility[][];
+  tiles: VisibilityType[][];
   visibleTiles: Point[];
 
   constructor({
@@ -19,15 +19,15 @@ export class VisibilityMap {
     this.height = height;
     this.visibleTiles = [];
 
-    this.visibility = Array.from({ length: this.height }, () =>
-      Array(width).fill(Visibility.HIDDEN),
+    this.tiles = Array.from({ length: this.height }, () =>
+      Array(width).fill(VisibilityType.HIDDEN),
     );
   }
 
-  update(player: Player, tiles: GameMap['tiles']): void {
+  update(player: Player, tiles: Map['tiles']): void {
     // Mark all VISIBLE as REVEALED
     this.visibleTiles.forEach(
-      ({ x, y }) => (this.visibility[y][x] = Visibility.REVEALED),
+      ({ x, y }) => (this.tiles[y][x] = VisibilityType.REVEALED),
     );
     this.visibleTiles = [];
 
@@ -58,7 +58,7 @@ export class VisibilityMap {
             break;
           }
 
-          this.visibility[point.y][point.x] = Visibility.VISIBLE;
+          this.tiles[point.y][point.x] = VisibilityType.VISIBLE;
           this.visibleTiles.push(point);
         }
       }
