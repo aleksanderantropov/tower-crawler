@@ -1,5 +1,5 @@
 import type { Settings } from '../configs/settings';
-import type { Point } from '../types/Point';
+import type { Tile } from '../types/Tile';
 import { TileType } from '../types/TileType';
 import { Room } from './Room';
 
@@ -42,11 +42,11 @@ export class Map {
     }
   }
 
-  isTileWalkable({ x, y }: Point): boolean {
+  isWall({ x, y }: Tile): boolean {
     return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.WALL;
   }
 
-  static calcDistance(p1: Point, p2: Point): number {
+  static calcDistance(p1: Tile, p2: Tile): number {
     const dx = Math.abs(p1.x - p2.x);
     const dy = Math.abs(p1.y - p2.y);
 

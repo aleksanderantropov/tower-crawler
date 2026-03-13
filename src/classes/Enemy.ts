@@ -1,16 +1,18 @@
 import type { Settings } from '../configs/settings';
 import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
-import type { Point } from '../types/Point';
+import type { Tile } from '../types/Tile';
 import { Map } from './Map';
+import type { Player } from './Player';
 
-export class Enemy implements Point, Combatant {
+export class Enemy implements Tile, Combatant {
   x: number;
   y: number;
   type: Settings['enemies'][EnemyType]['type'];
   view: Settings['enemies'][EnemyType]['view'];
   power: Settings['enemies'][EnemyType]['power'];
-  hp: Settings['enemies'][EnemyType]['hp'];
+  currentHp: Settings['enemies'][EnemyType]['hp'];
+  maxHp: Settings['enemies'][EnemyType]['hp'];
 
   constructor({
     x,
@@ -19,31 +21,29 @@ export class Enemy implements Point, Combatant {
     view,
     power,
     hp,
-  }: Point & Settings['enemies'][EnemyType]) {
+  }: Tile & Settings['enemies'][EnemyType]) {
     this.x = x;
     this.y = y;
     this.type = type;
     this.view = view;
     this.power = power;
-    this.hp = hp;
-  }
-  attack(enemy: Enemy): void {
-    throw new Error('Method not implemented.');
+    this.currentHp = hp;
+    this.maxHp = hp;
   }
 
-  moveTowards(point: Point, gameMap: Map): void {
-    const dx = Math.sign(point.x - this.x);
-    const dy = Math.sign(point.y - this.y);
-
-    if (dx && gameMap.isTileWalkable({ x: this.x + dx, y: this.y })) {
-      this.x += dx;
-    } else if (dy && gameMap.isTileWalkable({ x: this.x, y: this.y + dy })) {
-      this.y += dy;
-    }
+  attack(player: Player): void {
+    player.currentHp -= this.power;
+    console.log(
+      `Игрок получил ${this.power} урон(а). HP: ${player.currentHp}/${player.maxHp}`,
+    );
   }
 
-  isWithinAggroRadius(point: Point): boolean {
-    const dist = Map.calcDistance(this, point);
+  move({ x, y }: Tile): void {
+    [this.x, this.y] = [x, y];
+  }
+
+  isWithinAggroRadius(tile: Tile): boolean {
+    const dist = Map.calcDistance(this, tile);
 
     return dist <= this.view;
   }

@@ -1,4 +1,4 @@
-export type Point = {
+export type Tile = {
   x: number;
   y: number;
 };

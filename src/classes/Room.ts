@@ -1,4 +1,4 @@
-import type { Point } from '../types/Point';
+import type { Tile } from '../types/Tile';
 
 export class Room {
   readonly left: number;
@@ -7,7 +7,7 @@ export class Room {
   readonly bottom: number;
   readonly width: number;
   readonly height: number;
-  readonly center: Point;
+  readonly center: Tile;
 
   constructor({
     width,

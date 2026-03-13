@@ -14,9 +14,10 @@ export class Input {
       ArrowDown: { dx: 0, dy: 1 },
       ArrowLeft: { dx: -1, dy: 0 },
       ArrowRight: { dx: 1, dy: 0 },
+      Space: { dx: 0, dy: 0 },
     };
 
-    const move = actions[event.key];
+    const move = actions[event.code];
 
     if (move) {
       event.preventDefault();

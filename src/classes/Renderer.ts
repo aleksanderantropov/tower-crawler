@@ -1,6 +1,6 @@
 import { TileType } from '../types/TileType';
 import { type Settings } from '../configs/settings';
-import type { Point } from '../types/Point';
+import type { Tile } from '../types/Tile';
 import type { Visibility } from './Visibility';
 import { VisibilityType } from '../types/VisibilityType';
 import type { Map } from './Map';
@@ -38,7 +38,7 @@ export class Renderer {
   }: {
     tiles: Map['tiles'];
     visibility: Visibility['tiles'];
-    player: Point;
+    player: Tile;
     enemies: Enemy[];
   }): void {
     this.clear();
@@ -67,7 +67,7 @@ export class Renderer {
     alpha,
     x,
     y,
-  }: Point & { fillStyle: string; alpha: number }): void {
+  }: Tile & { fillStyle: string; alpha: number }): void {
     this.ctx.globalAlpha = alpha;
     this.ctx.fillStyle = fillStyle;
 
@@ -105,7 +105,7 @@ export class Renderer {
     }
   }
 
-  private drawPlayer(player: Point): void {
+  private drawPlayer(player: Tile): void {
     this.ctx.fillStyle = this.colors.player;
     this.ctx.beginPath();
 
