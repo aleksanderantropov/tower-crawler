@@ -7,7 +7,7 @@ export class Map {
   width: number;
   height: number;
   tiles: TileType[][];
-  rooms: Room[];
+  floorTiles: Tile[];
 
   constructor({ width, height, rooms }: Settings['gameMap']) {
     this.width = width;
@@ -15,35 +15,20 @@ export class Map {
     this.tiles = Array.from({ length: this.height }, () =>
       Array(this.width).fill(TileType.WALL),
     );
-    this.rooms = [];
-
+    this.floorTiles = [];
     this.generate(rooms);
-  }
-
-  // Generates map with Random Room Placement algorythm
-  private generate({
-    maxRooms,
-    minSize,
-    maxSize,
-  }: Settings['gameMap']['rooms']) {
-    for (let i = 0; i < maxRooms; i++) {
-      const newRoom = this.createRoom(minSize, maxSize);
-      const intersects = this.checkRoomsIntersection(newRoom);
-
-      if (!intersects) {
-        this.fillRoom(newRoom, TileType.FLOOR);
-
-        if (this.rooms.length > 0) {
-          this.digCorridor(this.rooms[this.rooms.length - 1], newRoom);
-        }
-
-        this.rooms.push(newRoom);
-      }
-    }
   }
 
   isWall({ x, y }: Tile): boolean {
     return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.WALL;
+  }
+
+  isFloor({ x, y }: Tile): boolean {
+    return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.FLOOR;
+  }
+
+  getRandomFloorTile(): Tile {
+    return this.floorTiles[Math.floor(Math.random() * this.floorTiles.length)];
   }
 
   static calcDistance(p1: Tile, p2: Tile): number {
@@ -53,11 +38,36 @@ export class Map {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  // Checks if newRoom intersects with existing rooms
-  private checkRoomsIntersection(newRoom: Room): boolean {
-    return this.rooms.some((existingRoom) =>
-      newRoom.intersectsWith(existingRoom),
-    );
+  // Generates map with Random Room Placement algorithm
+  private generate({
+    maxRooms,
+    minSize,
+    maxSize,
+  }: Settings['gameMap']['rooms']): void {
+    const rooms: Room[] = [];
+
+    for (let i = 0; i < maxRooms; i++) {
+      const newRoom = this.createRoom(minSize, maxSize);
+      const intersects = rooms.some((room) => room.intersectsWith(newRoom));
+
+      if (!intersects) {
+        this.fillRoom(newRoom, TileType.FLOOR);
+
+        if (rooms.length > 0) {
+          this.digCorridor(rooms[rooms.length - 1], newRoom);
+        }
+
+        rooms.push(newRoom);
+      }
+    }
+  }
+
+  private setTileType(tile: Tile, type: TileType): void {
+    this.tiles[tile.y][tile.x] = type;
+
+    if (type === TileType.FLOOR) {
+      this.floorTiles.push(tile);
+    }
   }
 
   // Inits a Room
@@ -75,9 +85,9 @@ export class Map {
 
   // Fills room with tileType
   private fillRoom(room: Room, tileType: TileType): void {
-    for (let i = room.top; i < room.bottom; i++) {
-      for (let j = room.left; j < room.right; j++) {
-        this.tiles[i][j] = tileType;
+    for (let y = room.top; y < room.bottom; y++) {
+      for (let x = room.left; x < room.right; x++) {
+        this.setTileType({ x, y }, tileType);
       }
     }
   }
@@ -129,7 +139,7 @@ export class Map {
     tileType: TileType;
   }): void {
     for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
-      this.tiles[y][x] = tileType;
+      this.setTileType({ x, y }, tileType);
     }
   }
 
@@ -145,7 +155,7 @@ export class Map {
     tileType: TileType;
   }): void {
     for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
-      this.tiles[y][x] = tileType;
+      this.setTileType({ x, y }, tileType);
     }
   }
 }

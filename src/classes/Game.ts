@@ -24,22 +24,16 @@ export class Game {
     this.visibility = new Visibility(settings.gameMap);
     this.renderer = new Renderer(settings.renderer);
 
-    const [playerRoom, ...enemiesRoom] = this.map.rooms;
     this.player = new Player({
-      ...playerRoom.center,
+      ...this.map.getRandomFloorTile(),
       ...settings.player,
     });
 
-    this.enemies = enemiesRoom.map(
-      (room) =>
-        new Enemy({
-          ...room.center,
-          ...settings.enemies[EnemyType.SLIME],
-        }),
-    );
-
     this.input = new Input(this.handleMove);
     this.stats = new Stats(this.player, settings.stats);
+
+    this.enemies = [];
+    this.spawnEnemies(settings.enemies);
   }
 
   handleMove = (input: Move) => {
@@ -73,7 +67,7 @@ export class Game {
   }
 
   private updateEnemies(): void {
-    this.enemies = this.enemies.filter((enemy) => enemy.currentHp);
+    this.enemies = this.enemies.filter((enemy) => enemy.currentHp > 0);
 
     this.enemies.forEach((enemy) => {
       if (!enemy.isWithinAggroRadius(this.player)) {
@@ -115,13 +109,50 @@ export class Game {
     this.visibility.update(this.player, this.map.tiles);
   }
 
-  private isTileWalkable(tile: Tile): boolean {
-    const occupiedByEnemy = this.enemies.some(
+  private tileHasEnemies(tile: Tile): boolean {
+    return this.enemies.some(
       (enemy) => enemy.x === tile.x && enemy.y === tile.y,
     );
-    const occupiedByPlayer =
-      this.player.x === tile.x && this.player.y === tile.y;
+  }
 
-    return this.map.isWall(tile) && !occupiedByEnemy && !occupiedByPlayer;
+  private tileHasPlayer(tile: Tile): boolean {
+    return this.player.x === tile.x && this.player.y === tile.y;
+  }
+
+  private isTileWalkable(tile: Tile): boolean {
+    return (
+      this.map.isWall(tile) &&
+      !this.tileHasEnemies(tile) &&
+      !this.tileHasPlayer(tile)
+    );
+  }
+
+  private spawnEnemies(settings: Settings['enemies']): void {
+    Object.entries(settings.spawn).forEach(([enemyType, enemyQuantity]) => {
+      if (
+        this.map.floorTiles.length <
+        this.enemies.length + enemyQuantity + 1
+      ) {
+        return;
+      }
+
+      for (let i = 0; i < enemyQuantity; i++) {
+        let randomFloorTile;
+
+        do {
+          randomFloorTile = this.map.getRandomFloorTile();
+        } while (
+          this.tileHasEnemies(randomFloorTile) ||
+          this.tileHasPlayer(randomFloorTile)
+        );
+
+        const newEnemy = new Enemy({
+          ...randomFloorTile,
+          ...settings.stats[enemyType as EnemyType],
+        });
+
+        this.enemies.push(newEnemy);
+      }
+    });
   }
 }

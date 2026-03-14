@@ -12,15 +12,27 @@ export const SETTINGS = {
   },
   player: {
     view: 3,
-    hp: 20,
-    power: 5,
+    hp: 12,
+    power: 3,
   },
   enemies: {
-    [EnemyType.SLIME]: {
-      type: EnemyType.SLIME,
-      view: 8,
-      hp: 5,
-      power: 2,
+    spawn: {
+      [EnemyType.SLIME]: 16,
+      [EnemyType.SKELETON]: 10,
+    },
+    stats: {
+      [EnemyType.SLIME]: {
+        type: EnemyType.SLIME,
+        view: 2,
+        hp: 4,
+        power: 1,
+      },
+      [EnemyType.SKELETON]: {
+        type: EnemyType.SKELETON,
+        view: 3,
+        hp: 6,
+        power: 2,
+      },
     },
   },
   renderer: {
@@ -31,7 +43,8 @@ export const SETTINGS = {
     colors: {
       player: '#e74c3c',
       enemies: {
-        [EnemyType.SLIME]: '#f1c40f',
+        [EnemyType.SLIME]: '#207e1d',
+        [EnemyType.SKELETON]: '#6a6c6a',
       },
       tiles: {
         floor: '#2c3e50',
