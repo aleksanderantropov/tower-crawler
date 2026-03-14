@@ -5,23 +5,18 @@ import type { Tile } from '../types/Tile';
 import { Map } from './Map';
 import type { Player } from './Player';
 
+type EnemyStats = Settings['enemies']['stats'][EnemyType];
+
 export class Enemy implements Tile, Combatant {
   x: number;
   y: number;
-  type: Settings['enemies'][EnemyType]['type'];
-  view: Settings['enemies'][EnemyType]['view'];
-  power: Settings['enemies'][EnemyType]['power'];
-  currentHp: Settings['enemies'][EnemyType]['hp'];
-  maxHp: Settings['enemies'][EnemyType]['hp'];
+  type: EnemyStats['type'];
+  view: EnemyStats['view'];
+  power: EnemyStats['power'];
+  currentHp: EnemyStats['hp'];
+  maxHp: EnemyStats['hp'];
 
-  constructor({
-    x,
-    y,
-    type,
-    view,
-    power,
-    hp,
-  }: Tile & Settings['enemies'][EnemyType]) {
+  constructor({ x, y, type, view, power, hp }: Tile & EnemyStats) {
     this.x = x;
     this.y = y;
     this.type = type;
