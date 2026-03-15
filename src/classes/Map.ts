@@ -1,13 +1,13 @@
 import type { Settings } from '../configs/settings';
-import type { Tile } from '../types/Tile';
 import { TileType } from '../types/TileType';
+import { Coords } from './Coords';
 import { Room } from './Room';
 
 export class Map {
   width: number;
   height: number;
   tiles: TileType[][];
-  floorTiles: Tile[];
+  floorTiles: Coords[];
 
   constructor({ width, height, rooms }: Settings['gameMap']) {
     this.width = width;
@@ -19,19 +19,19 @@ export class Map {
     this.generate(rooms);
   }
 
-  isWall({ x, y }: Tile): boolean {
+  isWall({ x, y }: Coords): boolean {
     return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.WALL;
   }
 
-  isFloor({ x, y }: Tile): boolean {
+  isFloor({ x, y }: Coords): boolean {
     return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.FLOOR;
   }
 
-  getRandomFloorTile(): Tile {
+  getRandomFloorTile(): Coords {
     return this.floorTiles[Math.floor(Math.random() * this.floorTiles.length)];
   }
 
-  static calcDistance(p1: Tile, p2: Tile): number {
+  static calcDistance(p1: Coords, p2: Coords): number {
     const dx = Math.abs(p1.x - p2.x);
     const dy = Math.abs(p1.y - p2.y);
 
@@ -62,7 +62,7 @@ export class Map {
     }
   }
 
-  private setTileType(tile: Tile, type: TileType): void {
+  private setTileType(tile: Coords, type: TileType): void {
     this.tiles[tile.y][tile.x] = type;
 
     if (type === TileType.FLOOR) {
@@ -87,7 +87,7 @@ export class Map {
   private fillRoom(room: Room, tileType: TileType): void {
     for (let y = room.top; y < room.bottom; y++) {
       for (let x = room.left; x < room.right; x++) {
-        this.setTileType({ x, y }, tileType);
+        this.setTileType(new Coords(x, y), tileType);
       }
     }
   }
@@ -139,7 +139,7 @@ export class Map {
     tileType: TileType;
   }): void {
     for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
-      this.setTileType({ x, y }, tileType);
+      this.setTileType(new Coords(x, y), tileType);
     }
   }
 
@@ -155,7 +155,7 @@ export class Map {
     tileType: TileType;
   }): void {
     for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
-      this.setTileType({ x, y }, tileType);
+      this.setTileType(new Coords(x, y), tileType);
     }
   }
 }

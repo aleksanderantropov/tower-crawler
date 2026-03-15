@@ -1,5 +1,5 @@
 import type { Settings } from '../configs/settings';
-import type { Tile } from '../types/Tile';
+import { Coords } from './Coords';
 import { TileType } from '../types/TileType';
 import { VisibilityType } from '../types/VisibilityType';
 import type { Map } from './Map';
@@ -9,7 +9,7 @@ export class Visibility {
   width: Settings['gameMap']['width'];
   height: Settings['gameMap']['height'];
   tiles: VisibilityType[][];
-  visibleTiles: Tile[];
+  visibleTiles: Coords[];
 
   constructor({
     width,
@@ -32,10 +32,10 @@ export class Visibility {
     this.visibleTiles = [];
 
     // Mark all in view and along the line as VISIBLE
-    const initialY = player.y - player.view;
-    const maxY = player.y + player.view;
-    const initialX = player.x - player.view;
-    const maxX = player.x + player.view;
+    const initialY = player.coords.y - player.view;
+    const maxY = player.coords.y + player.view;
+    const initialX = player.coords.x - player.view;
+    const maxX = player.coords.x + player.view;
 
     for (let y = initialY; y <= maxY; y++) {
       for (let x = initialX; x <= maxX; x++) {
@@ -47,7 +47,10 @@ export class Visibility {
           continue;
         }
 
-        const tilesAlongLine = this.getTilesAlongLine(player, { x, y });
+        const tilesAlongLine = this.getTilesAlongLine(
+          player.coords,
+          new Coords(x, y),
+        );
 
         for (const tile of tilesAlongLine) {
           // Still need to check total distance so the area is circular, not square
@@ -68,10 +71,10 @@ export class Visibility {
 
   // Bresenham’s algorithm of "raycasting"
   private getTilesAlongLine(
-    { x: x1, y: y1 }: Tile,
-    { x: x2, y: y2 }: Tile,
-  ): Tile[] {
-    const points = [];
+    { x: x1, y: y1 }: Coords,
+    { x: x2, y: y2 }: Coords,
+  ): Coords[] {
+    const points: Coords[] = [];
 
     // Abs difference between two points
     let dx = Math.abs(x1 - x2);
@@ -83,7 +86,7 @@ export class Visibility {
     let err = dx - dy;
 
     while (true) {
-      points.push({ x: x1, y: y1 });
+      points.push(new Coords(x1, y1));
 
       if (x1 === x2 && y1 === y2) {
         break;
@@ -109,14 +112,14 @@ export class Visibility {
   }
 
   // Checks if tile lies within view of the player
-  private isTileWithinView(player: Player, tile: Tile): boolean {
-    const dx = Math.abs(player.x - tile.x);
-    const dy = Math.abs(player.y - tile.y);
+  private isTileWithinView(player: Player, tile: Coords): boolean {
+    const dx = Math.abs(player.coords.x - tile.x);
+    const dy = Math.abs(player.coords.y - tile.y);
 
     return dx * dx + dy * dy <= player.view * player.view;
   }
 
-  private isPointWithinMap({ x, y }: Tile): boolean {
+  private isPointWithinMap({ x, y }: Coords): boolean {
     return x >= 0 && x < this.width && y >= 0 && y < this.height;
   }
 }

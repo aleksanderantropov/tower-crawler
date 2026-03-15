@@ -7,8 +7,8 @@ import { Map } from './Map';
 import { Input } from './Input';
 import { Player } from './Player';
 import { Visibility } from './Visibility';
-import type { Tile } from '../types/Tile';
 import { Stats } from './Stats';
+import { Coords } from './Coords';
 
 export class Game {
   private map: Map;
@@ -25,7 +25,7 @@ export class Game {
     this.renderer = new Renderer(settings.renderer);
 
     this.player = new Player({
-      ...this.map.getRandomFloorTile(),
+      coords: this.map.getRandomFloorTile(),
       ...settings.player,
     });
 
@@ -49,7 +49,10 @@ export class Game {
   }
 
   private updatePlayer({ dx, dy }: Move): void {
-    const targetTile = { x: this.player.x + dx, y: this.player.y + dy };
+    const targetTile = new Coords(
+      this.player.coords.x + dx,
+      this.player.coords.y + dy,
+    );
 
     const targetEnemy = this.findEnemyOnTile(targetTile);
 
@@ -60,32 +63,30 @@ export class Game {
     }
   }
 
-  private findEnemyOnTile(tile: Tile): Enemy | undefined {
-    return this.enemies.find(
-      (enemy) => tile.x === enemy.x && tile.y === enemy.y,
-    );
+  private findEnemyOnTile(tile: Coords): Enemy | undefined {
+    return this.enemies.find((enemy) => tile.equalTo(enemy.coords));
   }
 
   private updateEnemies(): void {
     this.enemies = this.enemies.filter((enemy) => enemy.currentHp > 0);
 
     this.enemies.forEach((enemy) => {
-      if (!enemy.isWithinAggroRadius(this.player)) {
+      if (!enemy.isWithinAggroRadius(this.player.coords)) {
         return;
       }
 
-      const dist = Map.calcDistance(enemy, this.player);
+      const dist = Map.calcDistance(enemy.coords, this.player.coords);
 
       if (dist === 1) {
         enemy.attack(this.player);
         return;
       }
 
-      const dx = Math.sign(this.player.x - enemy.x);
-      const dy = Math.sign(this.player.y - enemy.y);
+      const dx = Math.sign(this.player.coords.x - enemy.coords.x);
+      const dy = Math.sign(this.player.coords.y - enemy.coords.y);
 
-      const moveX = { x: enemy.x + dx, y: enemy.y };
-      const moveY = { x: enemy.x, y: enemy.y + dy };
+      const moveX = new Coords(enemy.coords.x + dx, enemy.coords.y);
+      const moveY = new Coords(enemy.coords.x, enemy.coords.y + dy);
 
       if (dx && this.isTileWalkable(moveX)) {
         enemy.move(moveX);
@@ -109,17 +110,15 @@ export class Game {
     this.visibility.update(this.player, this.map.tiles);
   }
 
-  private tileHasEnemies(tile: Tile): boolean {
-    return this.enemies.some(
-      (enemy) => enemy.x === tile.x && enemy.y === tile.y,
-    );
+  private tileHasEnemies(tile: Coords): boolean {
+    return this.enemies.some((enemy) => tile.equalTo(enemy.coords));
   }
 
-  private tileHasPlayer(tile: Tile): boolean {
-    return this.player.x === tile.x && this.player.y === tile.y;
+  private tileHasPlayer(tile: Coords): boolean {
+    return tile.equalTo(this.player.coords);
   }
 
-  private isTileWalkable(tile: Tile): boolean {
+  private isTileWalkable(tile: Coords): boolean {
     return (
       this.map.isWall(tile) &&
       !this.tileHasEnemies(tile) &&
@@ -147,7 +146,7 @@ export class Game {
         );
 
         const newEnemy = new Enemy({
-          ...randomFloorTile,
+          coords: randomFloorTile,
           ...settings.stats[enemyType as EnemyType],
         });
 

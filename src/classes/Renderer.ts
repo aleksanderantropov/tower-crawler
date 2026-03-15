@@ -1,10 +1,11 @@
 import { TileType } from '../types/TileType';
-import { type Settings } from '../configs/settings';
-import type { Tile } from '../types/Tile';
+import type { Settings } from '../configs/settings';
+import { Coords } from './Coords';
 import type { Visibility } from './Visibility';
 import { VisibilityType } from '../types/VisibilityType';
 import type { Map } from './Map';
 import type { Enemy } from './Enemy';
+import type { Player } from './Player';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -38,12 +39,12 @@ export class Renderer {
   }: {
     tiles: Map['tiles'];
     visibility: Visibility['tiles'];
-    player: Tile;
+    player: Player;
     enemies: Enemy[];
   }): void {
     this.clear();
     this.drawMap(tiles, visibility);
-    this.drawPlayer(player);
+    this.drawPlayer(player.coords);
     this.drawEnemies(enemies, visibility);
   }
 
@@ -57,7 +58,7 @@ export class Renderer {
         const fillStyle = this.getTileFillStyle(tiles[y][x]);
         const alpha = this.getAlphaValue(visibility[y][x]);
 
-        this.drawTile({ fillStyle, alpha, x, y });
+        this.drawTile({ fillStyle, alpha, coords: new Coords(x, y) });
       }
     }
   }
@@ -65,15 +66,18 @@ export class Renderer {
   private drawTile({
     fillStyle,
     alpha,
-    x,
-    y,
-  }: Tile & { fillStyle: string; alpha: number }): void {
+    coords,
+  }: {
+    fillStyle: string;
+    alpha: number;
+    coords: Coords;
+  }): void {
     this.ctx.globalAlpha = alpha;
     this.ctx.fillStyle = fillStyle;
 
     this.ctx.fillRect(
-      x * this.tileSize,
-      y * this.tileSize,
+      coords.x * this.tileSize,
+      coords.y * this.tileSize,
       this.tileSize,
       this.tileSize,
     );
@@ -105,7 +109,7 @@ export class Renderer {
     }
   }
 
-  private drawPlayer(player: Tile): void {
+  private drawPlayer(player: Coords): void {
     this.ctx.fillStyle = this.colors.player;
     this.ctx.beginPath();
 
@@ -119,7 +123,9 @@ export class Renderer {
 
   private drawEnemies(enemies: Enemy[], visibility: Visibility['tiles']): void {
     enemies.forEach((enemy) => {
-      if (visibility[enemy.y][enemy.x] !== VisibilityType.VISIBLE) {
+      if (
+        visibility[enemy.coords.y][enemy.coords.x] !== VisibilityType.VISIBLE
+      ) {
         return;
       }
 
@@ -127,8 +133,8 @@ export class Renderer {
       this.ctx.beginPath();
 
       this.ctx.fillRect(
-        enemy.x * this.tileSize + 4,
-        enemy.y * this.tileSize + 4,
+        enemy.coords.x * this.tileSize + 4,
+        enemy.coords.y * this.tileSize + 4,
         this.tileSize - 8,
         this.tileSize - 8,
       );

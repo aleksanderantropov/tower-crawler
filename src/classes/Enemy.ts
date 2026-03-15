@@ -1,24 +1,28 @@
 import type { Settings } from '../configs/settings';
 import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
-import type { Tile } from '../types/Tile';
+import { Coords } from './Coords';
 import { Map } from './Map';
 import type { Player } from './Player';
 
 type EnemyStats = Settings['enemies']['stats'][EnemyType];
 
-export class Enemy implements Tile, Combatant {
-  x: number;
-  y: number;
+export class Enemy implements Combatant {
+  coords: Coords;
   type: EnemyStats['type'];
   view: EnemyStats['view'];
   power: EnemyStats['power'];
   currentHp: EnemyStats['hp'];
   maxHp: EnemyStats['hp'];
 
-  constructor({ x, y, type, view, power, hp }: Tile & EnemyStats) {
-    this.x = x;
-    this.y = y;
+  constructor({
+    coords,
+    type,
+    view,
+    power,
+    hp,
+  }: { coords: Coords } & EnemyStats) {
+    this.coords = coords;
     this.type = type;
     this.view = view;
     this.power = power;
@@ -33,12 +37,12 @@ export class Enemy implements Tile, Combatant {
     );
   }
 
-  move({ x, y }: Tile): void {
-    [this.x, this.y] = [x, y];
+  move(coords: Coords): void {
+    this.coords = coords;
   }
 
-  isWithinAggroRadius(tile: Tile): boolean {
-    const dist = Map.calcDistance(this, tile);
+  isWithinAggroRadius(tile: Coords): boolean {
+    const dist = Map.calcDistance(this.coords, tile);
 
     return dist <= this.view;
   }

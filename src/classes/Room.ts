@@ -1,4 +1,4 @@
-import type { Tile } from '../types/Tile';
+import { Coords } from './Coords';
 
 export class Room {
   readonly left: number;
@@ -7,7 +7,7 @@ export class Room {
   readonly bottom: number;
   readonly width: number;
   readonly height: number;
-  readonly center: Tile;
+  readonly center: Coords;
 
   constructor({
     width,
@@ -28,10 +28,10 @@ export class Room {
     this.width = width;
     this.height = height;
 
-    this.center = {
-      x: Math.floor(this.left + this.width / 2),
-      y: Math.floor(this.top + this.height / 2),
-    };
+    this.center = new Coords(
+      Math.floor(this.left + this.width / 2),
+      Math.floor(this.top + this.height / 2),
+    );
   }
 
   intersectsWith(room: Room): boolean {
