@@ -1,11 +1,14 @@
 import type { Settings } from '../configs/settings';
 import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
+import { ItemType } from '../types/ItemType';
 import { Coords } from './Coords';
+import { Item } from './Item';
 import { Map } from './Map';
 import type { Player } from './Player';
 
 type EnemyStats = Settings['enemies']['stats'][EnemyType];
+type EnemyLootTable = Settings['enemies']['lootTable'][EnemyType];
 
 export class Enemy implements Combatant {
   coords: Coords;
@@ -14,6 +17,7 @@ export class Enemy implements Combatant {
   power: EnemyStats['power'];
   currentHp: EnemyStats['hp'];
   maxHp: EnemyStats['hp'];
+  lootTable: EnemyLootTable;
 
   constructor({
     coords,
@@ -21,13 +25,15 @@ export class Enemy implements Combatant {
     view,
     power,
     hp,
-  }: { coords: Coords } & EnemyStats) {
+    lootTable,
+  }: { coords: Coords } & EnemyStats & { lootTable: EnemyLootTable }) {
     this.coords = coords;
     this.type = type;
     this.view = view;
     this.power = power;
     this.currentHp = hp;
     this.maxHp = hp;
+    this.lootTable = lootTable;
   }
 
   attack(player: Player): void {

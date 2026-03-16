@@ -1,4 +1,5 @@
 import { EnemyType } from '../types/EnemyType';
+import { ItemType } from '../types/ItemType';
 
 export const SETTINGS = {
   gameMap: {
@@ -34,6 +35,26 @@ export const SETTINGS = {
         power: 2,
       },
     },
+    lootTable: {
+      [EnemyType.SLIME]: {
+        [ItemType.POTION]: 0.2,
+        [ItemType.WEAPON]: 0.1,
+      },
+      [EnemyType.SKELETON]: {
+        [ItemType.POTION]: 0.4,
+        [ItemType.WEAPON]: 0.2,
+      },
+    },
+  },
+  items: {
+    [ItemType.POTION]: {
+      name: 'Зелье здоровья',
+      effectValue: 5,
+    },
+    [ItemType.WEAPON]: {
+      name: 'Меч',
+      effectValue: 3,
+    },
   },
   renderer: {
     id: 'canvas',
@@ -45,6 +66,10 @@ export const SETTINGS = {
       enemies: {
         [EnemyType.SLIME]: '#207e1d',
         [EnemyType.SKELETON]: '#6a6c6a',
+      },
+      items: {
+        [ItemType.POTION]: '#af2121',
+        [ItemType.WEAPON]: '#9b59b6',
       },
       tiles: {
         floor: '#2c3e50',

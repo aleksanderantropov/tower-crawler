@@ -1,13 +1,15 @@
 import type { Settings } from '../configs/settings';
 import type { Combatant } from '../types/Combatant';
+import { ItemType } from '../types/ItemType';
 import { Coords } from './Coords';
 import type { Enemy } from './Enemy';
+import type { Item } from './Item';
 
 export class Player implements Combatant {
-  currentHp: Settings['player']['hp'];
-  maxHp: Settings['player']['hp'];
-  power: Settings['player']['power'];
-  view: Settings['player']['view'];
+  currentHp: number;
+  maxHp: number;
+  power: number;
+  view: number;
   coords: Coords;
 
   constructor({
@@ -32,5 +34,22 @@ export class Player implements Combatant {
     console.log(
       `Игрок нанес ${this.power} урон(а) по врагу ${enemy.type}! HP: ${enemy.currentHp}/${enemy.maxHp}`,
     );
+  }
+
+  heal(hp: number): void {
+    this.currentHp = Math.min(this.maxHp, hp + this.currentHp);
+  }
+
+  use(item: Item): void {
+    console.log(`Вы подобрали ${item.name} (+${item.effectValue}).`);
+
+    switch (item.type) {
+      case ItemType.POTION:
+        this.heal(item.effectValue);
+        break;
+      case ItemType.WEAPON:
+        this.power += item.effectValue;
+        break;
+    }
   }
 }

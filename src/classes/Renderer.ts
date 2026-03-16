@@ -6,6 +6,7 @@ import { VisibilityType } from '../types/VisibilityType';
 import type { Map } from './Map';
 import type { Enemy } from './Enemy';
 import type { Player } from './Player';
+import type { Item } from './Item';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -36,16 +37,19 @@ export class Renderer {
     visibility,
     player,
     enemies,
+    items,
   }: {
     tiles: Map['tiles'];
     visibility: Visibility['tiles'];
     player: Player;
     enemies: Enemy[];
+    items: Item[];
   }): void {
     this.clear();
     this.drawMap(tiles, visibility);
     this.drawPlayer(player.coords);
     this.drawEnemies(enemies, visibility);
+    this.drawItems(items, visibility);
   }
 
   private clear(): void {
@@ -137,6 +141,24 @@ export class Renderer {
         enemy.coords.y * this.tileSize + 4,
         this.tileSize - 8,
         this.tileSize - 8,
+      );
+    });
+  }
+
+  private drawItems(items: Item[], visibility: Visibility['tiles']): void {
+    items.forEach((item) => {
+      if (visibility[item.coords.y][item.coords.x] !== VisibilityType.VISIBLE) {
+        return;
+      }
+
+      this.ctx.fillStyle = this.colors.items[item.type];
+      this.ctx.beginPath();
+
+      this.ctx.fillRect(
+        item.coords.x * this.tileSize + 8,
+        item.coords.y * this.tileSize + 8,
+        this.tileSize - 16,
+        this.tileSize - 16,
       );
     });
   }

@@ -9,15 +9,19 @@ import { Player } from './Player';
 import { Visibility } from './Visibility';
 import { Stats } from './Stats';
 import { Coords } from './Coords';
+import { Item } from './Item';
+import { ItemType } from '../types/ItemType';
 
 export class Game {
   private map: Map;
   private visibility: Visibility;
+  private items: Item[];
   private renderer: Renderer;
   private player: Player;
   private enemies: Enemy[];
   private input: Input;
   private stats: Stats;
+  private settings: Settings;
 
   constructor(settings: Settings) {
     this.map = new Map(settings.gameMap);
@@ -34,6 +38,9 @@ export class Game {
 
     this.enemies = [];
     this.spawnEnemies(settings.enemies);
+
+    this.items = [];
+    this.settings = settings;
   }
 
   handleMove = (input: Move) => {
@@ -48,13 +55,20 @@ export class Game {
     this.render();
   }
 
-  private updatePlayer({ dx, dy }: Move): void {
+  private updatePlayer(input: Move): void {
+    this.handlePlayerInput(input);
+    this.pickLoot();
+  }
+
+  private handlePlayerInput({ dx, dy }: Move): void {
     const targetTile = new Coords(
       this.player.coords.x + dx,
       this.player.coords.y + dy,
     );
 
-    const targetEnemy = this.findEnemyOnTile(targetTile);
+    const targetEnemy = this.enemies.find((enemy) =>
+      targetTile.equalTo(enemy.coords),
+    );
 
     if (targetEnemy) {
       this.player.attack(targetEnemy);
@@ -63,11 +77,33 @@ export class Game {
     }
   }
 
-  private findEnemyOnTile(tile: Coords): Enemy | undefined {
-    return this.enemies.find((enemy) => tile.equalTo(enemy.coords));
+  private pickLoot(): void {
+    const item = this.items.find((item) =>
+      item.coords.equalTo(this.player.coords),
+    );
+
+    if (!item) {
+      return;
+    }
+
+    this.items = this.items.filter((_item) => _item !== item);
+
+    this.player.use(item);
   }
 
   private updateEnemies(): void {
+    this.enemies.forEach((enemy) => {
+      if (enemy.currentHp > 0) {
+        return;
+      }
+
+      const item = this.spawnLoot(enemy);
+
+      if (item) {
+        this.items.push(item);
+      }
+    });
+
     this.enemies = this.enemies.filter((enemy) => enemy.currentHp > 0);
 
     this.enemies.forEach((enemy) => {
@@ -96,13 +132,32 @@ export class Game {
     });
   }
 
+  private spawnLoot(enemy: Enemy): Item | null {
+    for (const [lootType, chance] of Object.entries(enemy.lootTable)) {
+      if (Math.random() <= chance) {
+        const { effectValue, name } = this.settings.items[lootType as ItemType];
+
+        return new Item({
+          coords: enemy.coords,
+          effectValue: effectValue,
+          name: name,
+          type: lootType as ItemType,
+        });
+      }
+    }
+
+    return null;
+  }
+
   private render(): void {
     this.stats.update();
+
     this.renderer.render({
       tiles: this.map.tiles,
       visibility: this.visibility.tiles,
       player: this.player,
       enemies: this.enemies,
+      items: this.items,
     });
   }
 
@@ -147,6 +202,7 @@ export class Game {
 
         const newEnemy = new Enemy({
           coords: randomFloorTile,
+          lootTable: settings.lootTable[enemyType as EnemyType],
           ...settings.stats[enemyType as EnemyType],
         });
 
