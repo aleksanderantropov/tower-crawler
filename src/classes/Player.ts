@@ -3,7 +3,7 @@ import type { Combatant } from '../types/Combatant';
 import { ItemType } from '../types/ItemType';
 import { Coords } from './Coords';
 import type { Enemy } from './Enemy';
-import { Item } from './Item';
+import type { Item } from './Item';
 
 export class Player implements Combatant {
   currentHp: number;
@@ -24,14 +24,7 @@ export class Player implements Combatant {
     this.currentHp = hp;
     this.maxHp = hp;
     this.view = view;
-    this.inventory = [
-      new Item({
-        coords: this.coords,
-        effectValue: 1,
-        name: 'Test',
-        type: ItemType.POTION,
-      }),
-    ];
+    this.inventory = [];
   }
 
   move(coords: Coords) {
