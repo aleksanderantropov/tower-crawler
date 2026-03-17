@@ -3,7 +3,7 @@ import type { Combatant } from '../types/Combatant';
 import { ItemType } from '../types/ItemType';
 import { Coords } from './Coords';
 import type { Enemy } from './Enemy';
-import type { Item } from './Item';
+import { Item } from './Item';
 
 export class Player implements Combatant {
   currentHp: number;
@@ -11,6 +11,7 @@ export class Player implements Combatant {
   power: number;
   view: number;
   coords: Coords;
+  inventory: Item[];
 
   constructor({
     coords,
@@ -23,6 +24,14 @@ export class Player implements Combatant {
     this.currentHp = hp;
     this.maxHp = hp;
     this.view = view;
+    this.inventory = [
+      new Item({
+        coords: this.coords,
+        effectValue: 1,
+        name: 'Test',
+        type: ItemType.POTION,
+      }),
+    ];
   }
 
   move(coords: Coords) {
@@ -37,11 +46,24 @@ export class Player implements Combatant {
   }
 
   heal(hp: number): void {
+    const oldHp = this.currentHp;
     this.currentHp = Math.min(this.maxHp, hp + this.currentHp);
+    console.log(
+      `Вы восполнили ${this.currentHp - oldHp} здоровья: ${this.currentHp} / ${this.maxHp}`,
+    );
   }
 
-  use(item: Item): void {
-    console.log(`Вы подобрали ${item.name} (+${item.effectValue}).`);
+  pick(item: Item) {
+    this.inventory.push(item);
+    console.log(`Вы подобрали ${item}.`);
+  }
+
+  use(inventoryIndex: number): void {
+    const item = this.inventory[inventoryIndex];
+
+    if (!item) {
+      return;
+    }
 
     switch (item.type) {
       case ItemType.POTION:
@@ -51,5 +73,7 @@ export class Player implements Combatant {
         this.power += item.effectValue;
         break;
     }
+
+    this.inventory = this.inventory.filter((_item) => _item !== item);
   }
 }

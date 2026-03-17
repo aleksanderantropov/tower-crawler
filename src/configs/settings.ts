@@ -87,8 +87,11 @@ export const SETTINGS = {
       },
     },
   },
-  stats: {
-    id: 'stats',
+  ui: {
+    id: {
+      stats: 'stats',
+      inventory: 'inventory',
+    },
   },
 } as const;
 

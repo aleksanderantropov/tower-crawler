@@ -23,4 +23,8 @@ export class Item {
     this.effectValue = effectValue;
     this.name = name;
   }
+
+  toString(): string {
+    return `${this.name} (+${this.effectValue})`;
+  }
 }

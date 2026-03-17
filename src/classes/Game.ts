@@ -7,7 +7,7 @@ import { Map } from './Map';
 import { Input } from './Input';
 import { Player } from './Player';
 import { Visibility } from './Visibility';
-import { Stats } from './Stats';
+import { UI } from './UI';
 import { Coords } from './Coords';
 import { Item } from './Item';
 import { ItemType } from '../types/ItemType';
@@ -20,7 +20,7 @@ export class Game {
   private player: Player;
   private enemies: Enemy[];
   private input: Input;
-  private stats: Stats;
+  private ui: UI;
   private settings: Settings;
 
   constructor(settings: Settings) {
@@ -33,8 +33,11 @@ export class Game {
       ...settings.player,
     });
 
-    this.input = new Input(this.handleMove);
-    this.stats = new Stats(this.player, settings.stats);
+    this.input = new Input({
+      onMove: this.handleMove,
+      onInventoryUse: this.handelInventoryUse,
+    });
+    this.ui = new UI(this.player, settings.ui);
 
     this.enemies = [];
     this.spawnEnemies(settings.enemies);
@@ -47,11 +50,18 @@ export class Game {
     this.updatePlayer(input);
     this.updateEnemies();
     this.updateVisibility();
+    this.ui.update();
     this.render();
+  };
+
+  handelInventoryUse = (index: number) => {
+    this.player.use(index);
+    this.ui.update();
   };
 
   start(): void {
     this.updateVisibility();
+    this.ui.update();
     this.render();
   }
 
@@ -88,7 +98,7 @@ export class Game {
 
     this.items = this.items.filter((_item) => _item !== item);
 
-    this.player.use(item);
+    this.player.pick(item);
   }
 
   private updateEnemies(): void {
@@ -150,8 +160,6 @@ export class Game {
   }
 
   private render(): void {
-    this.stats.update();
-
     this.renderer.render({
       tiles: this.map.tiles,
       visibility: this.visibility.tiles,
