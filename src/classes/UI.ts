@@ -24,7 +24,7 @@ export class UI {
   update(): void {
     this.stats.innerHTML = `
 <li>Здоровье: ${this.player.currentHp} / ${this.player.maxHp}</li>
-<li>Атака: ${this.player.power}</li>
+<li>Cила: ${this.player.power}</li>
 <li>Оружие: ${this.player.weapon ?? '-'}</li>
 `;
 

@@ -11,6 +11,7 @@ import { UI } from './UI';
 import { Coords } from './Coords';
 import { Item } from './Item';
 import { ItemType } from '../types/ItemType';
+import { Shake } from './animations/Shake';
 
 export class Game {
   private map!: Map;
@@ -42,6 +43,7 @@ export class Game {
 
     this.player = new Player({
       coords: this.map.getRandomFloorTile(),
+      onHpLoss: () => this.renderer.playAnimation(new Shake({ duration: 100 })),
       ...this.settings.player,
     });
 
@@ -59,7 +61,13 @@ export class Game {
     this.initialize();
     this.updateVisibility();
     this.ui.update();
+    this.gameLoop();
+  }
+
+  gameLoop() {
     this.render();
+
+    requestAnimationFrame(() => this.gameLoop());
   }
 
   handleRestart = (): void => {
@@ -83,7 +91,6 @@ export class Game {
 
     this.updateVisibility();
     this.ui.update();
-    this.render();
   };
 
   handelInventoryUse = (index: number): void => {

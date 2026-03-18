@@ -7,6 +7,7 @@ import type { Map } from './Map';
 import type { Enemy } from './Enemy';
 import type { Player } from './Player';
 import type { Item } from './Item';
+import { Shake } from './animations/Shake';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -14,6 +15,7 @@ export class Renderer {
   tileSize: Settings['renderer']['tileSize'];
   colors: Settings['renderer']['colors'];
   alpha: Settings['renderer']['alpha'];
+  animations: Shake[];
 
   constructor({
     id,
@@ -30,6 +32,7 @@ export class Renderer {
     this.tileSize = tileSize;
     this.colors = colors;
     this.alpha = alpha;
+    this.animations = [];
   }
 
   render({
@@ -46,14 +49,34 @@ export class Renderer {
     items: Item[];
   }): void {
     this.clear();
+    this.ctx.save();
+    this.drawAnimations();
     this.drawMap(tiles, visibility);
     this.drawPlayer(player.coords);
     this.drawEnemies(enemies, visibility);
     this.drawItems(items, visibility);
+    this.ctx.restore();
+  }
+
+  playAnimation(animation: Shake): void {
+    this.animations.push(animation);
   }
 
   private clear(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private drawAnimations() {
+    this.animations = this.animations.filter(
+      (animation) => !animation.isFinished,
+    );
+    this.animations.forEach((animation) => {
+      animation.play();
+
+      if (animation instanceof Shake) {
+        this.ctx.translate(animation.offset.x, animation.offset.y);
+      }
+    });
   }
 
   private drawMap(tiles: Map['tiles'], visibility: Visibility['tiles']): void {

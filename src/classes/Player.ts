@@ -6,20 +6,22 @@ import type { Enemy } from './Enemy';
 import type { Item } from './Item';
 
 export class Player implements Combatant {
-  currentHp: number;
+  private _currentHp: number;
   maxHp: number;
   basePower: number;
   view: number;
   coords: Coords;
   inventory: Item[];
   weapon: Item | null;
+  onHpLoss: VoidFunction;
 
   constructor({
     coords,
     power,
     hp,
     view,
-  }: { coords: Coords } & Settings['player']) {
+    onHpLoss,
+  }: { coords: Coords; onHpLoss: VoidFunction } & Settings['player']) {
     this.coords = coords;
     this.basePower = power;
     this.currentHp = hp;
@@ -28,6 +30,7 @@ export class Player implements Combatant {
 
     this.inventory = [];
     this.weapon = null;
+    this.onHpLoss = onHpLoss;
   }
 
   get power(): number {
@@ -92,5 +95,17 @@ export class Player implements Combatant {
 
   get dead(): boolean {
     return this.currentHp <= 0;
+  }
+
+  set currentHp(hp: number) {
+    if (hp < this._currentHp) {
+      this.onHpLoss();
+    }
+
+    this._currentHp = hp;
+  }
+
+  get currentHp(): number {
+    return this._currentHp;
   }
 }
