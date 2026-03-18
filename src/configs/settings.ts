@@ -91,6 +91,8 @@ export const SETTINGS = {
     id: {
       stats: 'stats',
       inventory: 'inventory',
+      gameOver: 'gameOver',
+      restartButton: 'restart',
     },
   },
 } as const;

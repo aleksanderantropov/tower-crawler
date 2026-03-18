@@ -13,57 +13,83 @@ import { Item } from './Item';
 import { ItemType } from '../types/ItemType';
 
 export class Game {
-  private map: Map;
-  private visibility: Visibility;
-  private items: Item[];
+  private map!: Map;
+  private visibility!: Visibility;
+  private items!: Item[];
   private renderer: Renderer;
-  private player: Player;
-  private enemies: Enemy[];
-  private input: Input;
-  private ui: UI;
+  private player!: Player;
+  private enemies!: Enemy[];
+  private input!: Input;
+  private ui!: UI;
   private settings: Settings;
 
   constructor(settings: Settings) {
-    this.map = new Map(settings.gameMap);
-    this.visibility = new Visibility(settings.gameMap);
     this.renderer = new Renderer(settings.renderer);
-
-    this.player = new Player({
-      coords: this.map.getRandomFloorTile(),
-      ...settings.player,
-    });
 
     this.input = new Input({
       onMove: this.handleMove,
       onInventoryUse: this.handelInventoryUse,
+      onRestart: this.handleRestart,
+      settings: settings.ui,
     });
-    this.ui = new UI(this.player, settings.ui);
 
-    this.enemies = [];
-    this.spawnEnemies(settings.enemies);
-
-    this.items = [];
     this.settings = settings;
   }
 
-  handleMove = (input: Move) => {
-    this.updatePlayer(input);
-    this.updateEnemies();
-    this.updateVisibility();
-    this.ui.update();
-    this.render();
-  };
+  initialize(): void {
+    this.map = new Map(this.settings.gameMap);
+    this.visibility = new Visibility(this.settings.gameMap);
 
-  handelInventoryUse = (index: number) => {
-    this.player.use(index);
-    this.ui.update();
-  };
+    this.player = new Player({
+      coords: this.map.getRandomFloorTile(),
+      ...this.settings.player,
+    });
+
+    this.ui = new UI(this.player, this.settings.ui);
+
+    this.enemies = [];
+    this.spawnEnemies(this.settings.enemies);
+
+    this.items = [];
+
+    this.input.init();
+  }
 
   start(): void {
+    this.initialize();
     this.updateVisibility();
     this.ui.update();
     this.render();
   }
+
+  handleRestart = (): void => {
+    this.ui.hideGameOverScreen();
+    this.start();
+  };
+
+  end() {
+    this.input.destroy();
+    this.ui.showGameOverScreen();
+  }
+
+  handleMove = (input: Move): void => {
+    this.updatePlayer(input);
+    this.updateEnemies();
+
+    if (this.player.dead) {
+      this.end();
+      return;
+    }
+
+    this.updateVisibility();
+    this.ui.update();
+    this.render();
+  };
+
+  handelInventoryUse = (index: number): void => {
+    this.player.use(index);
+    this.ui.update();
+  };
 
   private updatePlayer(input: Move): void {
     this.handlePlayerInput(input);

@@ -69,4 +69,8 @@ export class Player implements Combatant {
 
     this.inventory = this.inventory.filter((_item) => _item !== item);
   }
+
+  get dead(): boolean {
+    return this.currentHp <= 0;
+  }
 }

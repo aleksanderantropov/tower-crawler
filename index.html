@@ -9,11 +9,19 @@
   <body>
     <div class="container">
       <canvas id="canvas"></canvas>
-      <ul>
+      <div>
         <h3>Герой:</h3>
         <ul class="stats" id="stats"></ul>
         <h3>Инвентарь:</h3>
-        <ul class="inventory" id="inventory"></ul>
+        <ol class="inventory" id="inventory"></ol>
+      </div>
+      <div class="gameOver" id="gameOver">
+        <div>
+          <h3>Конец игры.</h3>
+          <p>Вы погибли.</p>
+        </div>
+
+        <button id="restart">Начать снова</button>
       </div>
     </div>
     <script type="module" src="/main.ts"></script>

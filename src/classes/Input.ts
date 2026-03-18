@@ -1,3 +1,4 @@
+import type { Settings } from '../configs/settings';
 import type { Move } from '../types/Move';
 
 type OnMove = (move: Move) => void;
@@ -6,24 +7,47 @@ type OnInventoryUse = (index: number) => void;
 export class Input {
   onMove: OnMove;
   onInventoryUse: OnInventoryUse;
+  onRestart: VoidFunction;
+  inventoryElement: HTMLOListElement;
+  restartButtonElement: HTMLButtonElement;
 
   constructor({
     onMove,
     onInventoryUse,
+    onRestart,
+    settings,
   }: {
     onMove: OnMove;
     onInventoryUse: OnInventoryUse;
+    onRestart: VoidFunction;
+    settings: Settings['ui'];
   }) {
     this.onMove = onMove;
-    window.addEventListener('keydown', (e) => {
-      this.handleMoveKeys(e);
-      this.handleInventoryKeys(e);
-    });
-
     this.onInventoryUse = onInventoryUse;
-    const inventory = document.getElementById('inventory');
-    inventory?.addEventListener('click', (e) => this.handleInventoryClick(e));
+    this.onRestart = onRestart;
+
+    this.inventoryElement = document.getElementById(
+      settings.id.inventory,
+    ) as HTMLOListElement;
+
+    this.restartButtonElement = document.getElementById(
+      settings.id.restartButton,
+    ) as HTMLButtonElement;
   }
+
+  init(): void {
+    document.addEventListener('keydown', this.handleKeyDown);
+    this.inventoryElement.addEventListener('click', this.handleInventoryClick);
+    this.restartButtonElement.addEventListener(
+      'click',
+      this.handleRestartClick,
+    );
+  }
+
+  handleKeyDown = (event: KeyboardEvent): void => {
+    this.handleMoveKeys(event);
+    this.handleInventoryKeys(event);
+  };
 
   handleMoveKeys(event: KeyboardEvent): void {
     const moveActions: { [key: KeyboardEvent['key']]: Move } = {
@@ -52,7 +76,7 @@ export class Input {
     this.onInventoryUse(inventorySlot - 1);
   }
 
-  handleInventoryClick(event: MouseEvent): void {
+  handleInventoryClick = (event: MouseEvent): void => {
     const target = event.target as HTMLElement;
 
     if (!target.hasAttribute('data-index')) {
@@ -62,5 +86,17 @@ export class Input {
     const index = parseInt(target.dataset.index || '0', 10);
 
     this.onInventoryUse(index);
+  };
+
+  handleRestartClick = (): void => {
+    this.onRestart();
+  };
+
+  destroy(): void {
+    window.removeEventListener('keydown', this.handleKeyDown);
+    this.inventoryElement.removeEventListener(
+      'click',
+      this.handleInventoryClick,
+    );
   }
 }

@@ -5,6 +5,7 @@ export class UI {
   player: Player;
   stats: HTMLDivElement;
   inventory: HTMLDivElement;
+  gameOver: HTMLDivElement;
   settings: Settings['ui'];
 
   constructor(player: Player, settings: Settings['ui']) {
@@ -14,6 +15,9 @@ export class UI {
     this.stats = document.getElementById(settings.id.stats) as HTMLDivElement;
     this.inventory = document.getElementById(
       settings.id.inventory,
+    ) as HTMLDivElement;
+    this.gameOver = document.getElementById(
+      settings.id.gameOver,
     ) as HTMLDivElement;
   }
 
@@ -26,5 +30,13 @@ export class UI {
     this.inventory.innerHTML = `
 ${this.player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Использовать</button></li>`).join('')}
 `;
+  }
+
+  showGameOverScreen(): void {
+    this.gameOver.classList.add('shown');
+  }
+
+  hideGameOverScreen(): void {
+    this.gameOver.classList.remove('shown');
   }
 }
