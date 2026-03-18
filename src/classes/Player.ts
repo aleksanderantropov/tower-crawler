@@ -8,10 +8,11 @@ import type { Item } from './Item';
 export class Player implements Combatant {
   currentHp: number;
   maxHp: number;
-  power: number;
+  basePower: number;
   view: number;
   coords: Coords;
   inventory: Item[];
+  weapon: Item | null;
 
   constructor({
     coords,
@@ -20,11 +21,17 @@ export class Player implements Combatant {
     view,
   }: { coords: Coords } & Settings['player']) {
     this.coords = coords;
-    this.power = power;
+    this.basePower = power;
     this.currentHp = hp;
     this.maxHp = hp;
     this.view = view;
+
     this.inventory = [];
+    this.weapon = null;
+  }
+
+  get power(): number {
+    return this.basePower + (this.weapon?.effectValue ?? 0);
   }
 
   move(coords: Coords) {
@@ -46,6 +53,19 @@ export class Player implements Combatant {
     );
   }
 
+  equipWeapon(item: Item): void {
+    const oldWeapon = this.weapon;
+
+    this.weapon = item;
+
+    if (oldWeapon) {
+      this.inventory.push(oldWeapon);
+      console.log(`Вы убрали в инвентарь ${oldWeapon}`);
+    }
+
+    console.log(`Вы экипипровали ${this.weapon}`);
+  }
+
   pick(item: Item) {
     this.inventory.push(item);
     console.log(`Вы подобрали ${item}.`);
@@ -63,7 +83,7 @@ export class Player implements Combatant {
         this.heal(item.effectValue);
         break;
       case ItemType.WEAPON:
-        this.power += item.effectValue;
+        this.equipWeapon(item);
         break;
     }
 

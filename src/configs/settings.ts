@@ -38,11 +38,11 @@ export const SETTINGS = {
     lootTable: {
       [EnemyType.SLIME]: {
         [ItemType.POTION]: 0.2,
-        [ItemType.WEAPON]: 0.1,
+        [ItemType.WEAPON]: 1,
       },
       [EnemyType.SKELETON]: {
         [ItemType.POTION]: 0.4,
-        [ItemType.WEAPON]: 0.2,
+        [ItemType.WEAPON]: 1,
       },
     },
   },

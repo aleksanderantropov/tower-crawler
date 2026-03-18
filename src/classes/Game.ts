@@ -215,10 +215,6 @@ export class Game {
     while (possibleTiles.length) {
       const tile = possibleTiles.pop();
 
-      console.log(tile);
-      console.log(!this.map.isWall(tile));
-      console.log(!this.tileHasItem(tile));
-
       if (tile && !this.map.isWall(tile) && !this.tileHasItem(tile)) {
         return tile;
       }

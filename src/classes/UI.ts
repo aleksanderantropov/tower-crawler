@@ -25,6 +25,7 @@ export class UI {
     this.stats.innerHTML = `
 <li>Здоровье: ${this.player.currentHp} / ${this.player.maxHp}</li>
 <li>Атака: ${this.player.power}</li>
+<li>Оружие: ${this.player.weapon ?? '-'}</li>
 `;
 
     this.inventory.innerHTML = `
