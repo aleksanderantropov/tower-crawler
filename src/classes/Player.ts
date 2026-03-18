@@ -6,7 +6,7 @@ import type { Enemy } from './Enemy';
 import type { Item } from './Item';
 
 export class Player implements Combatant {
-  private _currentHp: number;
+  private _currentHp!: number;
   maxHp: number;
   basePower: number;
   view: number;
