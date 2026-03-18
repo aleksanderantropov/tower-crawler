@@ -170,15 +170,57 @@ export class Game {
 
   private spawnLoot(enemy: Enemy): Item | null {
     for (const [lootType, chance] of Object.entries(enemy.lootTable)) {
-      if (Math.random() <= chance) {
-        const { effectValue, name } = this.settings.items[lootType as ItemType];
+      if (Math.random() > chance) {
+        continue;
+      }
 
-        return new Item({
-          coords: enemy.coords,
-          effectValue: effectValue,
-          name: name,
-          type: lootType as ItemType,
-        });
+      const { effectValue, name } = this.settings.items[lootType as ItemType];
+      const tile = this.findItemSpawnTile(enemy.coords);
+
+      console.log(tile);
+
+      if (!tile) {
+        continue;
+      }
+
+      return new Item({
+        coords: tile,
+        effectValue: effectValue,
+        name: name,
+        type: lootType as ItemType,
+      });
+    }
+
+    return null;
+  }
+
+  private findItemSpawnTile(originalTile: Coords): Coords | null {
+    if (!this.tileHasItem(originalTile)) {
+      return originalTile;
+    }
+
+    const { x, y } = originalTile;
+
+    const possibleTiles = [
+      new Coords(x - 1, y - 1),
+      new Coords(x, y - 1),
+      new Coords(x + 1, y - 1),
+      new Coords(x + 1, y),
+      new Coords(x + 1, y + 1),
+      new Coords(x, y + 1),
+      new Coords(x - 1, y + 1),
+      new Coords(x - 1, y),
+    ];
+
+    while (possibleTiles.length) {
+      const tile = possibleTiles.pop();
+
+      console.log(tile);
+      console.log(!this.map.isWall(tile));
+      console.log(!this.tileHasItem(tile));
+
+      if (tile && !this.map.isWall(tile) && !this.tileHasItem(tile)) {
+        return tile;
       }
     }
 
@@ -199,7 +241,7 @@ export class Game {
     this.visibility.update(this.player, this.map.tiles);
   }
 
-  private tileHasEnemies(tile: Coords): boolean {
+  private tileHasEnemy(tile: Coords): boolean {
     return this.enemies.some((enemy) => tile.equalTo(enemy.coords));
   }
 
@@ -207,10 +249,14 @@ export class Game {
     return tile.equalTo(this.player.coords);
   }
 
+  private tileHasItem(tile: Coords): boolean {
+    return this.items.some((item) => tile.equalTo(item.coords));
+  }
+
   private isTileWalkable(tile: Coords): boolean {
     return (
-      this.map.isWall(tile) &&
-      !this.tileHasEnemies(tile) &&
+      !this.map.isWall(tile) &&
+      !this.tileHasEnemy(tile) &&
       !this.tileHasPlayer(tile)
     );
   }
@@ -230,7 +276,7 @@ export class Game {
         do {
           randomFloorTile = this.map.getRandomFloorTile();
         } while (
-          this.tileHasEnemies(randomFloorTile) ||
+          this.tileHasEnemy(randomFloorTile) ||
           this.tileHasPlayer(randomFloorTile)
         );
 

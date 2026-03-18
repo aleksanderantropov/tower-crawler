@@ -20,11 +20,11 @@ export class Map {
   }
 
   isWall({ x, y }: Coords): boolean {
-    return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.WALL;
+    return this.tiles[y]?.[x] && this.tiles[y][x] === TileType.WALL;
   }
 
   isFloor({ x, y }: Coords): boolean {
-    return this.tiles[y]?.[x] && this.tiles[y][x] !== TileType.FLOOR;
+    return this.tiles[y]?.[x] && this.tiles[y][x] === TileType.FLOOR;
   }
 
   getRandomFloorTile(): Coords {
