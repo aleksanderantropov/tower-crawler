@@ -77,6 +77,12 @@ export const SETTINGS = {
         fog: '#000',
         default: '#fff',
       },
+      animations: {
+        damageNumbers: {
+          player: '#e74c3c',
+          enemies: '#f1c40f',
+        },
+      },
     },
     alpha: {
       visibility: {
@@ -84,6 +90,11 @@ export const SETTINGS = {
         revealed: 0.5,
         visible: 1,
         default: 1,
+      },
+    },
+    text: {
+      animations: {
+        damageNumber: 'bold 16px sans-serif',
       },
     },
   },

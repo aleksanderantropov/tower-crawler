@@ -11,7 +11,8 @@ import { UI } from './UI';
 import { Coords } from './Coords';
 import { Item } from './Item';
 import { ItemType } from '../types/ItemType';
-import { Shake } from './animations/Shake';
+import { ShakeAnimation } from './animations/ShakeAnimation';
+import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 
 export class Game {
   private map!: Map;
@@ -43,7 +44,17 @@ export class Game {
 
     this.player = new Player({
       coords: this.map.getRandomFloorTile(),
-      onHpLoss: () => this.renderer.playAnimation(new Shake({ duration: 100 })),
+      onHpLoss: (hpLoss: number) => {
+        this.renderer.playAnimations(
+          new ShakeAnimation({ duration: 100 }),
+          new DamageNumberAnimation({
+            duration: 1000,
+            coords: this.player.coords,
+            damage: hpLoss,
+            isTargetPlayer: true,
+          }),
+        );
+      },
       ...this.settings.player,
     });
 
@@ -286,6 +297,15 @@ export class Game {
         const newEnemy = new Enemy({
           coords: randomFloorTile,
           lootTable: settings.lootTable[enemyType as EnemyType],
+          onHpLoss: (hpLoss: number) => {
+            this.renderer.playAnimations(
+              new DamageNumberAnimation({
+                duration: 1000,
+                coords: newEnemy.coords,
+                damage: hpLoss,
+              }),
+            );
+          },
           ...settings.stats[enemyType as EnemyType],
         });
 

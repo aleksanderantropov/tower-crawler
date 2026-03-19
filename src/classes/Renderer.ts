@@ -7,31 +7,34 @@ import type { Map } from './Map';
 import type { Enemy } from './Enemy';
 import type { Player } from './Player';
 import type { Item } from './Item';
-import { Shake } from './animations/Shake';
+import { ShakeAnimation } from './animations/ShakeAnimation';
+import type { Animation } from '../types/Animation';
+import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   tileSize: Settings['renderer']['tileSize'];
-  colors: Settings['renderer']['colors'];
-  alpha: Settings['renderer']['alpha'];
-  animations: Shake[];
+  animations: Animation[];
+  settings: {
+    colors: Settings['renderer']['colors'];
+    alpha: Settings['renderer']['alpha'];
+    text: Settings['renderer']['text'];
+  };
 
   constructor({
     id,
     tileSize,
     width,
     height,
-    colors,
-    alpha,
+    ...settings
   }: Settings['renderer']) {
     this.canvas = document.getElementById(id) as HTMLCanvasElement;
     this.canvas.width = width;
     this.canvas.height = height;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this.tileSize = tileSize;
-    this.colors = colors;
-    this.alpha = alpha;
+    this.settings = settings;
     this.animations = [];
   }
 
@@ -50,31 +53,56 @@ export class Renderer {
   }): void {
     this.clear();
     this.ctx.save();
-    this.drawAnimations();
+    this.updateAnimations();
+    this.drawShakeAnimations();
     this.drawMap(tiles, visibility);
     this.drawPlayer(player.coords);
     this.drawEnemies(enemies, visibility);
     this.drawItems(items, visibility);
+    this.drawDamageNumberAnimations();
     this.ctx.restore();
   }
 
-  playAnimation(animation: Shake): void {
-    this.animations.push(animation);
+  playAnimations(...animations: Animation[]): void {
+    this.animations.push(...animations);
   }
 
   private clear(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawAnimations() {
+  private drawShakeAnimations(): void {
+    this.animations.forEach((animation) => {
+      if (animation instanceof ShakeAnimation) {
+        this.ctx.translate(animation.offset.x, animation.offset.y);
+      }
+    });
+  }
+
+  private updateAnimations() {
     this.animations = this.animations.filter(
       (animation) => !animation.isFinished,
     );
-    this.animations.forEach((animation) => {
-      animation.play();
 
-      if (animation instanceof Shake) {
-        this.ctx.translate(animation.offset.x, animation.offset.y);
+    this.animations.forEach((animation) => {
+      animation.update();
+    });
+  }
+
+  private drawDamageNumberAnimations(): void {
+    this.animations.forEach((animation) => {
+      if (animation instanceof DamageNumberAnimation) {
+        this.ctx.globalAlpha = animation.opacity;
+        this.ctx.fillStyle = animation.isTargetPlayer
+          ? this.settings.colors.animations.damageNumbers.player
+          : this.settings.colors.animations.damageNumbers.enemies;
+        this.ctx.font = this.settings.text.animations.damageNumber;
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(
+          animation.damage.toString(),
+          animation.currentCoords.x * this.tileSize + this.tileSize / 2,
+          animation.currentCoords.y * this.tileSize,
+        );
       }
     });
   }
@@ -109,35 +137,35 @@ export class Renderer {
       this.tileSize,
     );
 
-    this.ctx.globalAlpha = this.alpha.visibility.default;
+    this.ctx.globalAlpha = this.settings.alpha.visibility.default;
   }
 
   private getTileFillStyle(tile: TileType): string {
     switch (tile) {
       case TileType.FLOOR:
-        return this.colors.tiles.floor;
+        return this.settings.colors.tiles.floor;
       case TileType.WALL:
-        return this.colors.tiles.wall;
+        return this.settings.colors.tiles.wall;
       default:
-        return this.colors.tiles.default;
+        return this.settings.colors.tiles.default;
     }
   }
 
   private getAlphaValue(visibility: VisibilityType): number {
     switch (visibility) {
       case VisibilityType.HIDDEN:
-        return this.alpha.visibility.hidden;
+        return this.settings.alpha.visibility.hidden;
       case VisibilityType.REVEALED:
-        return this.alpha.visibility.revealed;
+        return this.settings.alpha.visibility.revealed;
       case VisibilityType.VISIBLE:
-        return this.alpha.visibility.visible;
+        return this.settings.alpha.visibility.visible;
       default:
-        return this.alpha.visibility.default;
+        return this.settings.alpha.visibility.default;
     }
   }
 
   private drawPlayer(player: Coords): void {
-    this.ctx.fillStyle = this.colors.player;
+    this.ctx.fillStyle = this.settings.colors.player;
     this.ctx.beginPath();
 
     // Convert coords to tileSize and shift by 1/2 of tileSize to center
@@ -156,7 +184,7 @@ export class Renderer {
         return;
       }
 
-      this.ctx.fillStyle = this.colors.enemies[enemy.type];
+      this.ctx.fillStyle = this.settings.colors.enemies[enemy.type];
       this.ctx.beginPath();
 
       this.ctx.fillRect(
@@ -174,7 +202,7 @@ export class Renderer {
         return;
       }
 
-      this.ctx.fillStyle = this.colors.items[item.type];
+      this.ctx.fillStyle = this.settings.colors.items[item.type];
       this.ctx.beginPath();
 
       this.ctx.fillRect(
