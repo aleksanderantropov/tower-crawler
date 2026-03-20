@@ -1,12 +1,15 @@
 import type { Settings } from '../configs/settings';
-import type { Move } from '../types/Move';
+import type { Ability } from '../types/Ability';
+import type { Direction } from '../types/Direction';
 
-type OnMove = (move: Move) => void;
+type OnMove = (direction: Direction) => void;
 type OnInventoryUse = (index: number) => void;
+type OnAbilityUse = (index: number) => void;
 
 export class Input {
   onMove: OnMove;
   onInventoryUse: OnInventoryUse;
+  onAbilityUse: OnAbilityUse;
   onRestart: VoidFunction;
   inventoryElement: HTMLOListElement;
   restartButtonElement: HTMLButtonElement;
@@ -14,16 +17,19 @@ export class Input {
   constructor({
     onMove,
     onInventoryUse,
+    onAbilityUse,
     onRestart,
     settings,
   }: {
     onMove: OnMove;
     onInventoryUse: OnInventoryUse;
+    onAbilityUse: OnAbilityUse;
     onRestart: VoidFunction;
     settings: Settings['ui'];
   }) {
     this.onMove = onMove;
     this.onInventoryUse = onInventoryUse;
+    this.onAbilityUse = onAbilityUse;
     this.onRestart = onRestart;
 
     this.inventoryElement = document.getElementById(
@@ -47,10 +53,11 @@ export class Input {
   handleKeyDown = (event: KeyboardEvent): void => {
     this.handleMoveKeys(event);
     this.handleInventoryKeys(event);
+    this.handleAbilityKeys(event);
   };
 
   handleMoveKeys(event: KeyboardEvent): void {
-    const moveActions: { [key: KeyboardEvent['key']]: Move } = {
+    const moveDirections: { [key: KeyboardEvent['code']]: Direction } = {
       ArrowUp: { dx: 0, dy: -1 },
       ArrowDown: { dx: 0, dy: 1 },
       ArrowLeft: { dx: -1, dy: 0 },
@@ -58,7 +65,7 @@ export class Input {
       Space: { dx: 0, dy: 0 },
     };
 
-    const move = moveActions[event.code];
+    const move = moveDirections[event.code];
 
     if (move) {
       event.preventDefault();
@@ -69,11 +76,25 @@ export class Input {
   handleInventoryKeys(event: KeyboardEvent): void {
     const inventorySlot = parseInt(event.key, 10);
 
-    if (inventorySlot - 1 < 0) {
+    if (!Number.isInteger(inventorySlot) || inventorySlot - 1 < 0) {
       return;
     }
 
     this.onInventoryUse(inventorySlot - 1);
+  }
+
+  handleAbilityKeys(event: KeyboardEvent): void {
+    const abilityIndices: { [key: KeyboardEvent['key']]: number } = {
+      q: 0,
+    };
+
+    const abilityIndex = abilityIndices[event.key];
+
+    if (abilityIndex === undefined) {
+      return;
+    }
+
+    this.onAbilityUse(abilityIndex);
   }
 
   handleInventoryClick = (event: MouseEvent): void => {

@@ -5,6 +5,7 @@ export class UI {
   player: Player;
   stats: HTMLDivElement;
   inventory: HTMLDivElement;
+  abilities: HTMLDivElement;
   gameOver: HTMLDivElement;
   settings: Settings['ui'];
 
@@ -15,6 +16,9 @@ export class UI {
     this.stats = document.getElementById(settings.id.stats) as HTMLDivElement;
     this.inventory = document.getElementById(
       settings.id.inventory,
+    ) as HTMLDivElement;
+    this.abilities = document.getElementById(
+      settings.id.abilities,
     ) as HTMLDivElement;
     this.gameOver = document.getElementById(
       settings.id.gameOver,
@@ -30,6 +34,9 @@ export class UI {
 
     this.inventory.innerHTML = `
 ${this.player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Использовать</button></li>`).join('')}
+`;
+    this.abilities.innerHTML = `
+${this.player.abilities.map((ability) => `<li>Q: ${ability.name}: ${ability.ready ? 'Готово' : ability.cd}</li>`).join('')}
 `;
   }
 

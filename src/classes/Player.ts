@@ -1,6 +1,9 @@
 import type { Settings } from '../configs/settings';
+import type { Ability } from '../types/Ability';
 import type { Combatant } from '../types/Combatant';
+import type { Direction } from '../types/Direction';
 import { ItemType } from '../types/ItemType';
+import { DashAbility } from './abilities/DashAbility';
 import { Coords } from './Coords';
 import type { Enemy } from './Enemy';
 import type { Item } from './Item';
@@ -11,10 +14,12 @@ export class Player implements Combatant {
   private _currentHp!: number;
   maxHp: number;
   basePower: number;
-  view: number;
+  viewDirection: Direction;
+  viewRadius: number;
   coords: Coords;
   inventory: Item[];
   weapon: Item | null;
+  abilities: Ability[];
   onHpLoss: OnHpLoss;
 
   constructor({
@@ -22,13 +27,20 @@ export class Player implements Combatant {
     power,
     hp,
     view,
+    abilities,
     onHpLoss,
-  }: { coords: Coords; onHpLoss: OnHpLoss } & Settings['player']) {
+  }: {
+    abilities: Ability[];
+    coords: Coords;
+    onHpLoss: OnHpLoss;
+  } & Settings['player']['stats']) {
     this.coords = coords;
     this.basePower = power;
     this.currentHp = hp;
     this.maxHp = hp;
-    this.view = view;
+    this.viewRadius = view;
+    this.abilities = abilities;
+    this.viewDirection = { dx: 0, dy: -1 };
 
     this.inventory = [];
     this.weapon = null;
@@ -40,6 +52,10 @@ export class Player implements Combatant {
   }
 
   move(coords: Coords) {
+    this.viewDirection = {
+      dx: coords.x - this.coords.x,
+      dy: coords.y - this.coords.y,
+    };
     this.coords = coords;
   }
 
@@ -71,16 +87,16 @@ export class Player implements Combatant {
     console.log(`Вы экипипровали ${this.weapon}`);
   }
 
-  pick(item: Item) {
+  pickItem(item: Item) {
     this.inventory.push(item);
     console.log(`Вы подобрали ${item}.`);
   }
 
-  use(inventoryIndex: number): void {
+  useItem(inventoryIndex: number): boolean {
     const item = this.inventory[inventoryIndex];
 
     if (!item) {
-      return;
+      return false;
     }
 
     switch (item.type) {
@@ -93,6 +109,25 @@ export class Player implements Combatant {
     }
 
     this.inventory = this.inventory.filter((_item) => _item !== item);
+
+    return true;
+  }
+
+  useAbility(abilityIndex: number): boolean {
+    const ability = this.abilities[abilityIndex];
+
+    if (!ability || !ability.ready) {
+      return false;
+    }
+
+    ability.use(this, this.viewDirection);
+    console.log(`Вы использовали способность ${ability.name}`);
+
+    return true;
+  }
+
+  decreaseAbilitiesCooldown(): void {
+    this.abilities.forEach((ability) => ability.decreaseCooldown());
   }
 
   get dead(): boolean {

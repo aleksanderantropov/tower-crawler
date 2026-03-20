@@ -15,7 +15,7 @@ export class Enemy implements Combatant {
   private _currentHp!: number;
   coords: Coords;
   type: EnemyStats['type'];
-  view: EnemyStats['view'];
+  viewRadius: EnemyStats['view'];
   power: EnemyStats['power'];
   maxHp: EnemyStats['hp'];
   lootTable: EnemyLootTable;
@@ -35,7 +35,7 @@ export class Enemy implements Combatant {
     }) {
     this.coords = coords;
     this.type = type;
-    this.view = view;
+    this.viewRadius = view;
     this.power = power;
     this.currentHp = hp;
     this.maxHp = hp;
@@ -57,7 +57,7 @@ export class Enemy implements Combatant {
   isWithinAggroRadius(tile: Coords): boolean {
     const dist = Map.calcDistance(this.coords, tile);
 
-    return dist <= this.view;
+    return dist <= this.viewRadius;
   }
 
   set currentHp(hp: number) {

@@ -1,9 +1,11 @@
-import type { Enemy } from '../classes/Enemy';
+import type { Coords } from '../classes/Coords';
 
 export type Combatant = {
   currentHp: number;
   maxHp: number;
   power: number;
-  view: number;
+  viewRadius: number;
+  coords: Coords;
   attack(enemy: Combatant): void;
+  move(coords: Coords): void;
 };

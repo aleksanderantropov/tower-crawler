@@ -32,10 +32,10 @@ export class Visibility {
     this.visibleTiles = [];
 
     // Mark all in view and along the line as VISIBLE
-    const initialY = player.coords.y - player.view;
-    const maxY = player.coords.y + player.view;
-    const initialX = player.coords.x - player.view;
-    const maxX = player.coords.x + player.view;
+    const initialY = player.coords.y - player.viewRadius;
+    const maxY = player.coords.y + player.viewRadius;
+    const initialX = player.coords.x - player.viewRadius;
+    const maxX = player.coords.x + player.viewRadius;
 
     for (let y = initialY; y <= maxY; y++) {
       for (let x = initialX; x <= maxX; x++) {
@@ -116,7 +116,7 @@ export class Visibility {
     const dx = Math.abs(player.coords.x - tile.x);
     const dy = Math.abs(player.coords.y - tile.y);
 
-    return dx * dx + dy * dy <= player.view * player.view;
+    return dx * dx + dy * dy <= player.viewRadius * player.viewRadius;
   }
 
   private isPointWithinMap({ x, y }: Coords): boolean {

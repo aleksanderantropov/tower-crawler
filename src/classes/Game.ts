@@ -1,6 +1,6 @@
 import type { Settings } from '../configs/settings';
 import { EnemyType } from '../types/EnemyType';
-import type { Move } from '../types/Move';
+import type { Direction } from '../types/Direction';
 import { Renderer } from './Renderer';
 import { Enemy } from './Enemy';
 import { Map } from './Map';
@@ -13,6 +13,9 @@ import { Item } from './Item';
 import { ItemType } from '../types/ItemType';
 import { ShakeAnimation } from './animations/ShakeAnimation';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
+import { DashAbility } from './abilities/DashAbility';
+import { AbilityType } from '../types/AbilityType';
+import { AnimationType } from '../types/AnimationType';
 
 export class Game {
   private map!: Map;
@@ -30,7 +33,8 @@ export class Game {
 
     this.input = new Input({
       onMove: this.handleMove,
-      onInventoryUse: this.handelInventoryUse,
+      onInventoryUse: this.handleInventoryUse,
+      onAbilityUse: this.handleAbilityUse,
       onRestart: this.handleRestart,
       settings: settings.ui,
     });
@@ -44,18 +48,30 @@ export class Game {
 
     this.player = new Player({
       coords: this.map.getRandomFloorTile(),
+      abilities: [
+        new DashAbility({
+          isTileWalkable: this.isTileWalkable,
+          ...this.settings.player.abilities[AbilityType.DASH],
+        }),
+      ],
       onHpLoss: (hpLoss: number) => {
         this.renderer.playAnimations(
-          new ShakeAnimation({ duration: 100 }),
+          new ShakeAnimation({
+            duration:
+              this.settings.renderer.duration.animations[AnimationType.SHAKE],
+          }),
           new DamageNumberAnimation({
-            duration: 1000,
+            duration:
+              this.settings.renderer.duration.animations[
+                AnimationType.DAMAGE_NUMBER
+              ],
             coords: this.player.coords,
             damage: hpLoss,
             isTargetPlayer: true,
           }),
         );
       },
-      ...this.settings.player,
+      ...this.settings.player.stats,
     });
 
     this.ui = new UI(this.player, this.settings.ui);
@@ -91,33 +107,11 @@ export class Game {
     this.ui.showGameOverScreen();
   }
 
-  handleMove = (input: Move): void => {
-    this.updatePlayer(input);
-    this.updateEnemies();
-
-    if (this.player.dead) {
-      this.end();
-      return;
-    }
-
-    this.updateVisibility();
-    this.ui.update();
-  };
-
-  handelInventoryUse = (index: number): void => {
-    this.player.use(index);
-    this.ui.update();
-  };
-
-  private updatePlayer(input: Move): void {
-    this.handlePlayerInput(input);
-    this.pickLoot();
-  }
-
-  private handlePlayerInput({ dx, dy }: Move): void {
+  private handleMove = (direction: Direction): void => {
+    console.log('move');
     const targetTile = new Coords(
-      this.player.coords.x + dx,
-      this.player.coords.y + dy,
+      this.player.coords.x + direction.dx,
+      this.player.coords.y + direction.dy,
     );
 
     const targetEnemy = this.enemies.find((enemy) =>
@@ -129,6 +123,42 @@ export class Game {
     } else if (this.isTileWalkable(targetTile)) {
       this.player.move(targetTile);
     }
+
+    this.processTurn();
+  };
+
+  handleInventoryUse = (index: number): void => {
+    if (!this.player.useItem(index)) {
+      return;
+    }
+
+    this.processTurn();
+  };
+
+  handleAbilityUse = (index: number): void => {
+    if (!this.player.useAbility(index)) {
+      return;
+    }
+
+    this.processTurn();
+  };
+
+  private processTurn(): void {
+    this.updatePlayer();
+    this.updateEnemies();
+
+    if (this.player.dead) {
+      this.end();
+      return;
+    }
+
+    this.updateVisibility();
+    this.ui.update();
+  }
+
+  private updatePlayer(): void {
+    this.pickLoot();
+    this.player.decreaseAbilitiesCooldown();
   }
 
   private pickLoot(): void {
@@ -142,7 +172,7 @@ export class Game {
 
     this.items = this.items.filter((_item) => _item !== item);
 
-    this.player.pick(item);
+    this.player.pickItem(item);
   }
 
   private updateEnemies(): void {
@@ -194,8 +224,6 @@ export class Game {
 
       const { effectValue, name } = this.settings.items[lootType as ItemType];
       const tile = this.findItemSpawnTile(enemy.coords);
-
-      console.log(tile);
 
       if (!tile) {
         continue;
@@ -267,13 +295,13 @@ export class Game {
     return this.items.some((item) => tile.equalTo(item.coords));
   }
 
-  private isTileWalkable(tile: Coords): boolean {
+  private isTileWalkable = (tile: Coords): boolean => {
     return (
       !this.map.isWall(tile) &&
       !this.tileHasEnemy(tile) &&
       !this.tileHasPlayer(tile)
     );
-  }
+  };
 
   private spawnEnemies(settings: Settings['enemies']): void {
     Object.entries(settings.spawn).forEach(([enemyType, enemyQuantity]) => {
@@ -300,7 +328,10 @@ export class Game {
           onHpLoss: (hpLoss: number) => {
             this.renderer.playAnimations(
               new DamageNumberAnimation({
-                duration: 1000,
+                duration:
+                  this.settings.renderer.duration.animations[
+                    AnimationType.DAMAGE_NUMBER
+                  ],
                 coords: newEnemy.coords,
                 damage: hpLoss,
               }),

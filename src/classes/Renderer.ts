@@ -10,6 +10,7 @@ import type { Item } from './Item';
 import { ShakeAnimation } from './animations/ShakeAnimation';
 import type { Animation } from '../types/Animation';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
+import { AnimationType } from '../types/AnimationType';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -94,9 +95,11 @@ export class Renderer {
       if (animation instanceof DamageNumberAnimation) {
         this.ctx.globalAlpha = animation.opacity;
         this.ctx.fillStyle = animation.isTargetPlayer
-          ? this.settings.colors.animations.damageNumbers.player
-          : this.settings.colors.animations.damageNumbers.enemies;
-        this.ctx.font = this.settings.text.animations.damageNumber;
+          ? this.settings.colors.animations[AnimationType.DAMAGE_NUMBER].player
+          : this.settings.colors.animations[AnimationType.DAMAGE_NUMBER]
+              .enemies;
+        this.ctx.font =
+          this.settings.text.animations[AnimationType.DAMAGE_NUMBER];
         this.ctx.textAlign = 'center';
         this.ctx.fillText(
           animation.damage.toString(),

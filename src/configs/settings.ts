@@ -1,3 +1,5 @@
+import { AbilityType } from '../types/AbilityType';
+import { AnimationType } from '../types/AnimationType';
 import { EnemyType } from '../types/EnemyType';
 import { ItemType } from '../types/ItemType';
 
@@ -12,9 +14,17 @@ export const SETTINGS = {
     },
   },
   player: {
-    view: 3,
-    hp: 12,
-    power: 3,
+    stats: {
+      view: 3,
+      hp: 12,
+      power: 3,
+    },
+    abilities: {
+      [AbilityType.DASH]: {
+        maxCd: 5,
+        range: 2,
+      },
+    },
   },
   enemies: {
     spawn: {
@@ -78,7 +88,7 @@ export const SETTINGS = {
         default: '#fff',
       },
       animations: {
-        damageNumbers: {
+        [AnimationType.DAMAGE_NUMBER]: {
           player: '#e74c3c',
           enemies: '#f1c40f',
         },
@@ -94,7 +104,13 @@ export const SETTINGS = {
     },
     text: {
       animations: {
-        damageNumber: 'bold 16px sans-serif',
+        [AnimationType.DAMAGE_NUMBER]: 'bold 16px sans-serif',
+      },
+    },
+    duration: {
+      animations: {
+        [AnimationType.SHAKE]: 100,
+        [AnimationType.DAMAGE_NUMBER]: 1000,
       },
     },
   },
@@ -102,6 +118,7 @@ export const SETTINGS = {
     id: {
       stats: 'stats',
       inventory: 'inventory',
+      abilities: 'abilities',
       gameOver: 'gameOver',
       restartButton: 'restart',
     },
