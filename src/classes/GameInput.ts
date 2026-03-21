@@ -55,6 +55,10 @@ export class GameInput {
     if (!Number.isInteger(inventoryIndex) || inventoryIndex < 0) {
       return;
     }
+
+    this.resolvePromise?.(
+      this.createInputAction(GameInputType.INVENTORY_USE, inventoryIndex),
+    );
   }
 
   handleAbilityKeys(event: KeyboardEvent): void {
