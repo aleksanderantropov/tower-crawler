@@ -1,3 +1,3 @@
 export enum AbilityType {
-  DASH = 'dash',
+  DASH = 'DASH',
 }

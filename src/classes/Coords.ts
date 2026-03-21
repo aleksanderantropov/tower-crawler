@@ -1,3 +1,5 @@
+import type { Direction } from '../types/Direction';
+
 export class Coords {
   constructor(
     public x: number,
@@ -10,5 +12,9 @@ export class Coords {
 
   clone(): Coords {
     return new Coords(this.x, this.y);
+  }
+
+  add(direction: Direction): Coords {
+    return new Coords(this.x + direction.dx, this.y + direction.dy);
   }
 }

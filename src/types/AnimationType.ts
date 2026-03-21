@@ -1,4 +1,4 @@
 export enum AnimationType {
-  SHAKE = 'shake',
-  DAMAGE_NUMBER = 'damage_number',
+  SHAKE = 'SHAKE',
+  DAMAGE_NUMBER = 'DAMAGE_NUMBER',
 }

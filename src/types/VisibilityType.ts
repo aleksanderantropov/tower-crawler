@@ -1,5 +1,5 @@
 export enum VisibilityType {
-  VISIBLE = 'visible',
-  REVEALED = 'revealed',
-  HIDDEN = 'hidden',
+  VISIBLE = 'VISIBLE',
+  REVEALED = 'REVEALED',
+  HIDDEN = 'HIDDEN',
 }

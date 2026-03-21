@@ -1,53 +1,24 @@
 import type { Settings } from '../configs/settings';
 import type { Ability } from '../types/Ability';
 import type { Direction } from '../types/Direction';
+import type { GameAction } from '../types/GameAction';
+import { GameInputType } from '../types/GameInputType';
 
-type OnMove = (direction: Direction) => void;
-type OnInventoryUse = (index: number) => void;
-type OnAbilityUse = (index: number) => void;
-
-export class Input {
-  onMove: OnMove;
-  onInventoryUse: OnInventoryUse;
-  onAbilityUse: OnAbilityUse;
-  onRestart: VoidFunction;
+export class GameInput {
   inventoryElement: HTMLOListElement;
-  restartButtonElement: HTMLButtonElement;
+  resolvePromise: (action: GameAction) => void;
 
-  constructor({
-    onMove,
-    onInventoryUse,
-    onAbilityUse,
-    onRestart,
-    settings,
-  }: {
-    onMove: OnMove;
-    onInventoryUse: OnInventoryUse;
-    onAbilityUse: OnAbilityUse;
-    onRestart: VoidFunction;
-    settings: Settings['ui'];
-  }) {
-    this.onMove = onMove;
-    this.onInventoryUse = onInventoryUse;
-    this.onAbilityUse = onAbilityUse;
-    this.onRestart = onRestart;
+  constructor(settings: Settings['ui']) {
+    this.resolvePromise = (action: GameAction) => {};
 
     this.inventoryElement = document.getElementById(
       settings.id.inventory,
     ) as HTMLOListElement;
-
-    this.restartButtonElement = document.getElementById(
-      settings.id.restartButton,
-    ) as HTMLButtonElement;
   }
 
   init(): void {
     document.addEventListener('keydown', this.handleKeyDown);
     this.inventoryElement.addEventListener('click', this.handleInventoryClick);
-    this.restartButtonElement.addEventListener(
-      'click',
-      this.handleRestartClick,
-    );
   }
 
   handleKeyDown = (event: KeyboardEvent): void => {
@@ -65,22 +36,25 @@ export class Input {
       Space: { dx: 0, dy: 0 },
     };
 
-    const move = moveDirections[event.code];
+    const moveDirection = moveDirections[event.code];
 
-    if (move) {
-      event.preventDefault();
-      this.onMove(move);
+    if (!moveDirection) {
+      return;
     }
+
+    event.preventDefault();
+    this.resolvePromise?.(
+      this.createInputAction(GameInputType.PLAYER_MOVE, moveDirection),
+    );
   }
 
   handleInventoryKeys(event: KeyboardEvent): void {
     const inventorySlot = parseInt(event.key, 10);
+    const inventoryIndex = inventorySlot - 1;
 
-    if (!Number.isInteger(inventorySlot) || inventorySlot - 1 < 0) {
+    if (!Number.isInteger(inventoryIndex) || inventoryIndex < 0) {
       return;
     }
-
-    this.onInventoryUse(inventorySlot - 1);
   }
 
   handleAbilityKeys(event: KeyboardEvent): void {
@@ -94,7 +68,9 @@ export class Input {
       return;
     }
 
-    this.onAbilityUse(abilityIndex);
+    this.resolvePromise(
+      this.createInputAction(GameInputType.ABILITY_USE, abilityIndex),
+    );
   }
 
   handleInventoryClick = (event: MouseEvent): void => {
@@ -106,11 +82,9 @@ export class Input {
 
     const index = parseInt(target.dataset.index || '0', 10);
 
-    this.onInventoryUse(index);
-  };
-
-  handleRestartClick = (): void => {
-    this.onRestart();
+    this.resolvePromise(
+      this.createInputAction(GameInputType.INVENTORY_USE, index),
+    );
   };
 
   destroy(): void {
@@ -119,5 +93,15 @@ export class Input {
       'click',
       this.handleInventoryClick,
     );
+  }
+
+  async awaitAction(): Promise<GameAction> {
+    return new Promise((resolve) => {
+      this.resolvePromise = resolve;
+    });
+  }
+
+  private createInputAction(type: GameInputType, payload?: any): GameAction {
+    return { type, payload };
   }
 }

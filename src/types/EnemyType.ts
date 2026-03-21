@@ -1,4 +1,4 @@
 export enum EnemyType {
-  SLIME = 'slime',
-  SKELETON = 'skeleton',
+  SLIME = 'SLIME',
+  SKELETON = 'SKELETON',
 }

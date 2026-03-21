@@ -1,0 +1,5 @@
+export enum GameInputType {
+  PLAYER_MOVE = 'PLAYER_MOVE',
+  INVENTORY_USE = 'INVENTORY_USE',
+  ABILITY_USE = 'ABILITY_USE',
+}

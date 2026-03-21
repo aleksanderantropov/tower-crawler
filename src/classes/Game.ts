@@ -4,7 +4,7 @@ import type { Direction } from '../types/Direction';
 import { Renderer } from './Renderer';
 import { Enemy } from './Enemy';
 import { Map } from './Map';
-import { Input } from './Input';
+import { GameInput } from './GameInput';
 import { Player } from './Player';
 import { Visibility } from './Visibility';
 import { UI } from './UI';
@@ -16,6 +16,11 @@ import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 import { DashAbility } from './abilities/DashAbility';
 import { AbilityType } from '../types/AbilityType';
 import { AnimationType } from '../types/AnimationType';
+import { GameInputType } from '../types/GameInputType';
+import type { GameAction } from '../types/GameAction';
+import { MenuInput } from './MenuInput';
+import { MenuInputType } from '../types/MenuInputType';
+import type { MenuAction } from '../types/MenuAction';
 
 export class Game {
   private map!: Map;
@@ -24,21 +29,15 @@ export class Game {
   private renderer: Renderer;
   private player!: Player;
   private enemies!: Enemy[];
-  private input!: Input;
+  private gameInput!: GameInput;
+  private menuInput!: MenuInput;
   private ui!: UI;
   private settings: Settings;
 
   constructor(settings: Settings) {
     this.renderer = new Renderer(settings.renderer);
-
-    this.input = new Input({
-      onMove: this.handleMove,
-      onInventoryUse: this.handleInventoryUse,
-      onAbilityUse: this.handleAbilityUse,
-      onRestart: this.handleRestart,
-      settings: settings.ui,
-    });
-
+    this.menuInput = new MenuInput(settings.ui);
+    this.gameInput = new GameInput(settings.ui);
     this.settings = settings;
   }
 
@@ -81,38 +80,69 @@ export class Game {
 
     this.items = [];
 
-    this.input.init();
+    this.gameInput.init();
   }
 
   start(): void {
     this.initialize();
     this.updateVisibility();
     this.ui.update();
+    this.renderLoop();
     this.gameLoop();
   }
 
-  gameLoop() {
+  // Rendering is processed separately for animations
+  renderLoop() {
     this.render();
 
-    requestAnimationFrame(() => this.gameLoop());
+    requestAnimationFrame(() => this.renderLoop());
   }
 
-  handleRestart = (): void => {
-    this.ui.hideGameOverScreen();
-    this.start();
-  };
+  async gameLoop() {
+    while (!this.player.dead) {
+      const gameAction = await this.gameInput.awaitAction();
+      const successfulAction = this.handleGameAction(gameAction);
 
-  end() {
-    this.input.destroy();
+      if (successfulAction) {
+        this.updatePlayer();
+        this.updateEnemies();
+        this.updateVisibility();
+        this.ui.update();
+      }
+    }
+
+    this.end();
+  }
+
+  async end() {
+    this.gameInput.destroy();
     this.ui.showGameOverScreen();
+
+    const menuAction = await this.menuInput.awaitAction();
+    this.handleMenuAction(menuAction);
   }
 
-  private handleMove = (direction: Direction): void => {
-    console.log('move');
-    const targetTile = new Coords(
-      this.player.coords.x + direction.dx,
-      this.player.coords.y + direction.dy,
-    );
+  private handleGameAction(inputAction: GameAction): boolean {
+    let successfulAction = false;
+
+    switch (inputAction.type) {
+      case GameInputType.PLAYER_MOVE:
+        this.handlePlayerMove(inputAction.payload);
+        successfulAction = true;
+        break;
+      case GameInputType.ABILITY_USE:
+        successfulAction = this.handleAbilityUse(inputAction.payload);
+        break;
+      case GameInputType.INVENTORY_USE:
+        successfulAction = this.handleInventoryUse(inputAction.payload);
+        break;
+    }
+
+    return successfulAction;
+  }
+
+  private handlePlayerMove(direction: Direction): void {
+    const targetTile = this.player.coords.add(direction);
 
     const targetEnemy = this.enemies.find((enemy) =>
       targetTile.equalTo(enemy.coords),
@@ -123,37 +153,27 @@ export class Game {
     } else if (this.isTileWalkable(targetTile)) {
       this.player.move(targetTile);
     }
+  }
 
-    this.processTurn();
-  };
+  private handleInventoryUse(index: number): boolean {
+    return this.player.useItem(index);
+  }
 
-  handleInventoryUse = (index: number): void => {
-    if (!this.player.useItem(index)) {
-      return;
+  private handleAbilityUse(index: number): boolean {
+    return this.player.useAbility(index);
+  }
+
+  private handleMenuAction(menuAction: MenuAction): void {
+    switch (menuAction.type) {
+      case MenuInputType.GAME_RESTART:
+        this.handleGameRestart();
+        break;
     }
+  }
 
-    this.processTurn();
-  };
-
-  handleAbilityUse = (index: number): void => {
-    if (!this.player.useAbility(index)) {
-      return;
-    }
-
-    this.processTurn();
-  };
-
-  private processTurn(): void {
-    this.updatePlayer();
-    this.updateEnemies();
-
-    if (this.player.dead) {
-      this.end();
-      return;
-    }
-
-    this.updateVisibility();
-    this.ui.update();
+  private handleGameRestart(): void {
+    this.ui.hideGameOverScreen();
+    this.start();
   }
 
   private updatePlayer(): void {
