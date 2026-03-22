@@ -26,16 +26,16 @@ export class UI {
 
   update(player: Player): void {
     this.stats.innerHTML = `
-<li>Здоровье: ${player.currentHp} / ${player.maxHp}</li>
-<li>Cила: ${player.power}</li>
-<li>Оружие: ${player.weapon ?? '-'}</li>
+<li>Health: ${player.currentHp} / ${player.maxHp}</li>
+<li>Power: ${player.power}</li>
+<li>Weapon: ${player.weapon ?? '-'}</li>
 `;
 
     this.inventory.innerHTML = `
-${player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Использовать</button></li>`).join('')}
+${player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Use</button></li>`).join('')}
 `;
     this.abilities.innerHTML = `
-${player.abilities.map((ability) => `<li>${this.settings.keyboardShortcuts.abilities[ability.type].toUpperCase()}: ${ability.name}: ${ability.ready ? 'Готово' : ability.cd}</li>`).join('')}
+${player.abilities.map((ability) => `<li>${this.settings.keyboardShortcuts.abilities[ability.type].toUpperCase()}: ${ability.name} [${ability.ready ? 'Ready' : ability.cd}]</li>`).join('')}
 `;
   }
 

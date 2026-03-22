@@ -40,7 +40,7 @@ export class Enemy implements Combatant {
   attack(target: Combatant): void {
     target.takeDamage(this.power);
     console.log(
-      `Игрок получил ${this.power} урон(а). HP: ${target.currentHp}/${target.maxHp}`,
+      `Player took ${this.power} damage. HP: ${target.currentHp}/${target.maxHp}`,
     );
   }
 

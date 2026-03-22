@@ -63,11 +63,11 @@ export const SETTINGS = {
   },
   items: {
     [ItemType.POTION]: {
-      name: 'Зелье здоровья',
+      name: 'Health Potion',
       effectValue: 5,
     },
     [ItemType.WEAPON]: {
-      name: 'Меч',
+      name: 'Sword',
       effectValue: 3,
     },
   },

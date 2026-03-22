@@ -27,7 +27,7 @@ export class CleaveAbility implements Ability {
     damageMultiplier,
     getTargets,
     cd = 0,
-    name = 'Круговой удар',
+    name = 'Cleave',
   }: CleaveAbilityProps) {
     this.cd = cd;
     this.maxCd = maxCd;

@@ -54,7 +54,7 @@ export class Player implements Combatant {
   attack(enemy: Enemy): void {
     enemy.takeDamage(this.power);
     console.log(
-      `Игрок нанес ${this.power} урон(а) по врагу ${enemy.type}! HP: ${enemy.currentHp}/${enemy.maxHp}`,
+      `Player dealt ${this.power} damage to enemy ${enemy.type}! HP: ${enemy.currentHp}/${enemy.maxHp}`,
     );
   }
 
@@ -62,7 +62,7 @@ export class Player implements Combatant {
     const oldHp = this.currentHp;
     this.currentHp = Math.min(this.maxHp, hp + this.currentHp);
     console.log(
-      `Вы восполнили ${this.currentHp - oldHp} здоровья: ${this.currentHp} / ${this.maxHp}`,
+      `You restored ${this.currentHp - oldHp} health: ${this.currentHp} / ${this.maxHp}`,
     );
   }
 
@@ -73,15 +73,15 @@ export class Player implements Combatant {
 
     if (oldWeapon) {
       this.inventory.push(oldWeapon);
-      console.log(`Вы убрали в инвентарь ${oldWeapon}`);
+      console.log(`You put ${oldWeapon} back into your inventory`);
     }
 
-    console.log(`Вы экипипровали ${this.weapon}`);
+    console.log(`You equipped ${this.weapon}`);
   }
 
   pickItem(item: Item) {
     this.inventory.push(item);
-    console.log(`Вы подобрали ${item}.`);
+    console.log(`You picked up ${item}.`);
   }
 
   useItem(inventoryIndex: number): boolean {
@@ -115,7 +115,7 @@ export class Player implements Combatant {
     }
 
     ability.use(this);
-    console.log(`Вы использовали способность ${ability.name}`);
+    console.log(`You used ability ${ability.name}`);
 
     return true;
   }

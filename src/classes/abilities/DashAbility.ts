@@ -28,7 +28,7 @@ export class DashAbility implements Ability {
     range,
     isTileWalkable,
     cd = 0,
-    name = 'Рывок',
+    name = 'Dash',
   }: DashAbilityProps) {
     this.cd = cd;
     this.maxCd = maxCd;
