@@ -1,7 +1,5 @@
 # Roadmap
 
-- Add cleave ability
-- Parametrise abilities keybindings (now hardcoded)
-- Pickup items with button
-- Create EnemyManager class and move utility methods there
-- Create ItemManager ?
+- Increase game map 10x and center the player on canvas
+- Pick items up with button
+- Drop items from inventory

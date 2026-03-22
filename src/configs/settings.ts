@@ -68,7 +68,7 @@ export const SETTINGS = {
     },
     [ItemType.WEAPON]: {
       name: 'Sword',
-      effectValue: 3,
+      effectValue: 1,
     },
   },
   renderer: {
