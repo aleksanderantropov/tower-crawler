@@ -3,15 +3,13 @@ import type { Ability } from '../types/Ability';
 import type { Combatant } from '../types/Combatant';
 import type { Direction } from '../types/Direction';
 import { ItemType } from '../types/ItemType';
-import { DashAbility } from './abilities/DashAbility';
 import { Coords } from './Coords';
+import { Emitter } from './Emitter';
 import type { Enemy } from './Enemy';
 import type { Item } from './Item';
 
-type OnHpLoss = (hpLoss: number) => void;
-
 export class Player implements Combatant {
-  private _currentHp!: number;
+  currentHp!: number;
   maxHp: number;
   basePower: number;
   viewDirection: Direction;
@@ -20,7 +18,7 @@ export class Player implements Combatant {
   inventory: Item[];
   weapon: Item | null;
   abilities: Ability[];
-  onHpLoss: OnHpLoss;
+  onDamage: Emitter<number>;
 
   constructor({
     coords,
@@ -28,11 +26,9 @@ export class Player implements Combatant {
     hp,
     view,
     abilities,
-    onHpLoss,
   }: {
     abilities: Ability[];
     coords: Coords;
-    onHpLoss: OnHpLoss;
   } & Settings['player']['stats']) {
     this.coords = coords;
     this.basePower = power;
@@ -44,7 +40,7 @@ export class Player implements Combatant {
 
     this.inventory = [];
     this.weapon = null;
-    this.onHpLoss = onHpLoss;
+    this.onDamage = new Emitter<number>();
   }
 
   get power(): number {
@@ -60,7 +56,7 @@ export class Player implements Combatant {
   }
 
   attack(enemy: Enemy): void {
-    enemy.currentHp -= this.power;
+    enemy.takeDamage(this.power);
     console.log(
       `Игрок нанес ${this.power} урон(а) по врагу ${enemy.type}! HP: ${enemy.currentHp}/${enemy.maxHp}`,
     );
@@ -130,19 +126,13 @@ export class Player implements Combatant {
     this.abilities.forEach((ability) => ability.decreaseCooldown());
   }
 
+  takeDamage(damage: number): void {
+    const hpBeforeDamage = this.currentHp;
+    this.currentHp = Math.max(0, this.currentHp - damage);
+    this.onDamage.emit(hpBeforeDamage - this.currentHp);
+  }
+
   get dead(): boolean {
     return this.currentHp <= 0;
-  }
-
-  set currentHp(hp: number) {
-    if (hp < this._currentHp) {
-      this.onHpLoss(this._currentHp - hp);
-    }
-
-    this._currentHp = hp;
-  }
-
-  get currentHp(): number {
-    return this._currentHp;
   }
 }

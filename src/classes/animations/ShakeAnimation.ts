@@ -1,8 +1,10 @@
 import type { Animation } from '../../types/Animation';
+import { AnimationRenderingPhase } from '../../types/AnimationRenderingPhase';
 import { Coords } from '../Coords';
 
 export class ShakeAnimation implements Animation {
   isFinished: boolean;
+  phase: AnimationRenderingPhase;
   duration: number;
   offset: Coords;
   private startTime: number;
@@ -12,6 +14,11 @@ export class ShakeAnimation implements Animation {
     this.duration = duration;
     this.offset = new Coords(0, 0);
     this.startTime = Date.now();
+    this.phase = AnimationRenderingPhase.PRE;
+  }
+
+  render(ctx: CanvasRenderingContext2D): void {
+    ctx.translate(this.offset.x, this.offset.y);
   }
 
   update(): void {

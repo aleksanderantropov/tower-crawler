@@ -10,11 +10,11 @@ export class Coords {
     return this.x === coords.x && this.y === coords.y;
   }
 
-  clone(): Coords {
-    return new Coords(this.x, this.y);
-  }
+  clone(direction?: Direction): Coords {
+    if (!direction) {
+      return new Coords(this.x, this.y);
+    }
 
-  add(direction: Direction): Coords {
     return new Coords(this.x + direction.dx, this.y + direction.dy);
   }
 }

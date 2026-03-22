@@ -49,7 +49,7 @@ export class DashAbility implements Ability {
         return;
       }
 
-      target.coords = nextTile;
+      target.move(nextTile);
     }
   }
 

@@ -8,4 +8,5 @@ export type Combatant = {
   coords: Coords;
   attack(enemy: Combatant): void;
   move(coords: Coords): void;
+  takeDamage(damage: number): void;
 };

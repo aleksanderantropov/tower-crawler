@@ -19,17 +19,17 @@ export class Map {
     this.generate(rooms);
   }
 
-  isWall({ x, y }: Coords): boolean {
+  isWall = ({ x, y }: Coords): boolean => {
     return this.tiles[y]?.[x] && this.tiles[y][x] === TileType.WALL;
-  }
+  };
 
-  isFloor({ x, y }: Coords): boolean {
+  isFloor = ({ x, y }: Coords): boolean => {
     return this.tiles[y]?.[x] && this.tiles[y][x] === TileType.FLOOR;
-  }
+  };
 
-  getRandomFloorTile(): Coords {
+  getRandomFloorTile = (): Coords => {
     return this.floorTiles[Math.floor(Math.random() * this.floorTiles.length)];
-  }
+  };
 
   static calcDistance(p1: Coords, p2: Coords): number {
     const dx = Math.abs(p1.x - p2.x);

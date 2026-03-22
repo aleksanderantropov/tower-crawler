@@ -1,9 +1,13 @@
+import type { Settings } from '../../configs/settings';
 import type { Animation } from '../../types/Animation';
+import { AnimationRenderingPhase } from '../../types/AnimationRenderingPhase';
+import { AnimationType } from '../../types/AnimationType';
 import type { Coords } from '../Coords';
 
 export class DamageNumberAnimation implements Animation {
   duration: number;
   isFinished: boolean;
+  phase: AnimationRenderingPhase;
   damage: number;
   opacity: number;
   isTargetPlayer: boolean;
@@ -29,8 +33,23 @@ export class DamageNumberAnimation implements Animation {
     this.opacity = 0;
     this.currentCoords = this.initialCoords.clone();
     this.isFinished = false;
+    this.phase = AnimationRenderingPhase.POST;
     this.startTime = Date.now();
     this.isTargetPlayer = isTargetPlayer;
+  }
+
+  render(ctx: CanvasRenderingContext2D, settings: Settings['renderer']): void {
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.isTargetPlayer
+      ? settings.colors.animations[AnimationType.DAMAGE_NUMBER].player
+      : settings.colors.animations[AnimationType.DAMAGE_NUMBER].enemies;
+    ctx.font = settings.text.animations[AnimationType.DAMAGE_NUMBER];
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      this.damage.toString(),
+      this.currentCoords.x * settings.tileSize + settings.tileSize / 2,
+      this.currentCoords.y * settings.tileSize,
+    );
   }
 
   update(): void {

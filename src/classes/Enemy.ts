@@ -1,25 +1,22 @@
 import type { Settings } from '../configs/settings';
 import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
-import { ItemType } from '../types/ItemType';
 import { Coords } from './Coords';
-import { Item } from './Item';
+import { Emitter } from './Emitter';
 import { Map } from './Map';
-import type { Player } from './Player';
 
 type EnemyStats = Settings['enemies']['stats'][EnemyType];
 type EnemyLootTable = Settings['enemies']['lootTable'][EnemyType];
-type OnHpLoss = (hpLoss: number) => void;
 
 export class Enemy implements Combatant {
-  private _currentHp!: number;
+  currentHp!: number;
   coords: Coords;
   type: EnemyStats['type'];
   viewRadius: EnemyStats['view'];
   power: EnemyStats['power'];
   maxHp: EnemyStats['hp'];
   lootTable: EnemyLootTable;
-  onHpLoss: OnHpLoss;
+  onDamage: Emitter<number>;
 
   constructor({
     coords,
@@ -28,10 +25,8 @@ export class Enemy implements Combatant {
     power,
     hp,
     lootTable,
-    onHpLoss,
   }: { coords: Coords } & EnemyStats & {
       lootTable: EnemyLootTable;
-      onHpLoss: OnHpLoss;
     }) {
     this.coords = coords;
     this.type = type;
@@ -40,13 +35,13 @@ export class Enemy implements Combatant {
     this.currentHp = hp;
     this.maxHp = hp;
     this.lootTable = lootTable;
-    this.onHpLoss = onHpLoss;
+    this.onDamage = new Emitter<number>();
   }
 
-  attack(player: Player): void {
-    player.currentHp -= this.power;
+  attack(target: Combatant): void {
+    target.takeDamage(this.power);
     console.log(
-      `Игрок получил ${this.power} урон(а). HP: ${player.currentHp}/${player.maxHp}`,
+      `Игрок получил ${this.power} урон(а). HP: ${target.currentHp}/${target.maxHp}`,
     );
   }
 
@@ -60,15 +55,34 @@ export class Enemy implements Combatant {
     return dist <= this.viewRadius;
   }
 
-  set currentHp(hp: number) {
-    if (hp < this._currentHp) {
-      this.onHpLoss(this._currentHp - hp);
+  act(target: Combatant, isTileWalkable: (tile: Coords) => boolean): void {
+    if (!this.isWithinAggroRadius(target.coords)) {
+      return;
     }
 
-    this._currentHp = hp;
+    const dist = Map.calcDistance(this.coords, target.coords);
+
+    if (dist === 1) {
+      this.attack(target);
+      return;
+    }
+
+    const dx = Math.sign(target.coords.x - this.coords.x);
+    const dy = Math.sign(target.coords.y - this.coords.y);
+
+    const moveX = this.coords.clone({ dx, dy: 0 });
+    const moveY = this.coords.clone({ dx: 0, dy });
+
+    if (dx && isTileWalkable(moveX)) {
+      this.move(moveX);
+    } else if (dy && isTileWalkable(moveY)) {
+      this.move(moveY);
+    }
   }
 
-  get currentHp(): number {
-    return this._currentHp;
+  takeDamage(damage: number): void {
+    const hpBeforeDamage = this.currentHp;
+    this.currentHp = Math.max(0, this.currentHp - damage);
+    this.onDamage.emit(hpBeforeDamage - this.currentHp);
   }
 }

@@ -2,15 +2,13 @@ import type { Settings } from '../configs/settings';
 import type { Player } from './Player';
 
 export class UI {
-  player: Player;
   stats: HTMLDivElement;
   inventory: HTMLDivElement;
   abilities: HTMLDivElement;
   gameOver: HTMLDivElement;
   settings: Settings['ui'];
 
-  constructor(player: Player, settings: Settings['ui']) {
-    this.player = player;
+  constructor(settings: Settings['ui']) {
     this.settings = settings;
 
     this.stats = document.getElementById(settings.id.stats) as HTMLDivElement;
@@ -25,18 +23,18 @@ export class UI {
     ) as HTMLDivElement;
   }
 
-  update(): void {
+  update(player: Player): void {
     this.stats.innerHTML = `
-<li>Здоровье: ${this.player.currentHp} / ${this.player.maxHp}</li>
-<li>Cила: ${this.player.power}</li>
-<li>Оружие: ${this.player.weapon ?? '-'}</li>
+<li>Здоровье: ${player.currentHp} / ${player.maxHp}</li>
+<li>Cила: ${player.power}</li>
+<li>Оружие: ${player.weapon ?? '-'}</li>
 `;
 
     this.inventory.innerHTML = `
-${this.player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Использовать</button></li>`).join('')}
+${player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Использовать</button></li>`).join('')}
 `;
     this.abilities.innerHTML = `
-${this.player.abilities.map((ability) => `<li>Q: ${ability.name}: ${ability.ready ? 'Готово' : ability.cd}</li>`).join('')}
+${player.abilities.map((ability) => `<li>Q: ${ability.name}: ${ability.ready ? 'Готово' : ability.cd}</li>`).join('')}
 `;
   }
 

@@ -11,30 +11,21 @@ import { ShakeAnimation } from './animations/ShakeAnimation';
 import type { Animation } from '../types/Animation';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 import { AnimationType } from '../types/AnimationType';
+import { AnimationRenderingPhase } from '../types/AnimationRenderingPhase';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  tileSize: Settings['renderer']['tileSize'];
+  tileSize: number;
   animations: Animation[];
-  settings: {
-    colors: Settings['renderer']['colors'];
-    alpha: Settings['renderer']['alpha'];
-    text: Settings['renderer']['text'];
-  };
+  settings: Settings['renderer'];
 
-  constructor({
-    id,
-    tileSize,
-    width,
-    height,
-    ...settings
-  }: Settings['renderer']) {
-    this.canvas = document.getElementById(id) as HTMLCanvasElement;
-    this.canvas.width = width;
-    this.canvas.height = height;
+  constructor(settings: Settings['renderer']) {
+    this.canvas = document.getElementById(settings.id) as HTMLCanvasElement;
+    this.canvas.width = settings.width;
+    this.canvas.height = settings.height;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-    this.tileSize = tileSize;
+    this.tileSize = settings.tileSize;
     this.settings = settings;
     this.animations = [];
   }
@@ -55,12 +46,14 @@ export class Renderer {
     this.clear();
     this.ctx.save();
     this.updateAnimations();
-    this.drawShakeAnimations();
+
+    this.renderPhase(AnimationRenderingPhase.PRE);
     this.drawMap(tiles, visibility);
     this.drawPlayer(player.coords);
     this.drawEnemies(enemies, visibility);
     this.drawItems(items, visibility);
-    this.drawDamageNumberAnimations();
+    this.renderPhase(AnimationRenderingPhase.POST);
+
     this.ctx.restore();
   }
 
@@ -72,12 +65,10 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawShakeAnimations(): void {
-    this.animations.forEach((animation) => {
-      if (animation instanceof ShakeAnimation) {
-        this.ctx.translate(animation.offset.x, animation.offset.y);
-      }
-    });
+  private renderPhase(phase: AnimationRenderingPhase): void {
+    this.animations
+      .filter((animation) => animation.phase === phase)
+      .forEach((animation) => animation.render(this.ctx, this.settings));
   }
 
   private updateAnimations() {
@@ -87,26 +78,6 @@ export class Renderer {
 
     this.animations.forEach((animation) => {
       animation.update();
-    });
-  }
-
-  private drawDamageNumberAnimations(): void {
-    this.animations.forEach((animation) => {
-      if (animation instanceof DamageNumberAnimation) {
-        this.ctx.globalAlpha = animation.opacity;
-        this.ctx.fillStyle = animation.isTargetPlayer
-          ? this.settings.colors.animations[AnimationType.DAMAGE_NUMBER].player
-          : this.settings.colors.animations[AnimationType.DAMAGE_NUMBER]
-              .enemies;
-        this.ctx.font =
-          this.settings.text.animations[AnimationType.DAMAGE_NUMBER];
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(
-          animation.damage.toString(),
-          animation.currentCoords.x * this.tileSize + this.tileSize / 2,
-          animation.currentCoords.y * this.tileSize,
-        );
-      }
     });
   }
 
