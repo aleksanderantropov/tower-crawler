@@ -75,7 +75,7 @@ export class Game {
 
     this.ui = new UI(this.settings.ui);
 
-    this.enemyManager = new EnemyManager({ settings: this.settings.enemies });
+    this.enemyManager = new EnemyManager(this.settings.enemies);
     this.enemyManager.onSpawn.on((enemy) => {
       enemy.onDamage.on((damage: number) => {
         this.renderer.playAnimations(
