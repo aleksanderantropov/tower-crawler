@@ -1,5 +1,6 @@
 import type { Settings } from '../configs/settings';
 import type { Ability } from '../types/Ability';
+import { AbilityType } from '../types/AbilityType';
 import type { Direction } from '../types/Direction';
 import type { GameAction } from '../types/GameAction';
 import { GameInputType } from '../types/GameInputType';
@@ -60,18 +61,19 @@ export class GameInput {
   }
 
   handleAbilityKeys(event: KeyboardEvent): void {
-    const abilityIndices: { [key: KeyboardEvent['key']]: number } = {
-      q: 0,
+    const abilityTypes: { [key: KeyboardEvent['key']]: number } = {
+      q: AbilityType.DASH,
+      e: AbilityType.CLEAVE,
     };
 
-    const abilityIndex = abilityIndices[event.key];
+    const abilityType = abilityTypes[event.key];
 
-    if (abilityIndex === undefined) {
+    if (abilityType === undefined) {
       return;
     }
 
     this.resolvePromise(
-      this.createInputAction(GameInputType.ABILITY_USE, abilityIndex),
+      this.createInputAction(GameInputType.ABILITY_USE, abilityType),
     );
   }
 

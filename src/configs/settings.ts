@@ -24,6 +24,11 @@ export const SETTINGS = {
         maxCd: 5,
         range: 2,
       },
+      [AbilityType.CLEAVE]: {
+        maxCd: 10,
+        radius: 1,
+        damageMultiplier: 1.5,
+      },
     },
   },
   enemies: {
@@ -121,6 +126,12 @@ export const SETTINGS = {
       abilities: 'abilities',
       gameOver: 'gameOver',
       restartButton: 'restart',
+    },
+    keyboardShortcuts: {
+      abilities: {
+        [AbilityType.CLEAVE]: 'e',
+        [AbilityType.DASH]: 'q',
+      },
     },
   },
 } as const;

@@ -6,6 +6,7 @@ import type { GameAction } from '../types/GameAction';
 import { GameInputType } from '../types/GameInputType';
 import type { MenuAction } from '../types/MenuAction';
 import { MenuInputType } from '../types/MenuInputType';
+import { CleaveAbility } from './abilities/CleaveAbility';
 import { DashAbility } from './abilities/DashAbility';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 import { ShakeAnimation } from './animations/ShakeAnimation';
@@ -50,6 +51,10 @@ export class Game {
         new DashAbility({
           isTileWalkable: this.isTileWalkable,
           ...this.settings.player.abilities[AbilityType.DASH],
+        }),
+        new CleaveAbility({
+          getTargets: () => this.enemyManager.enemies,
+          ...this.settings.player.abilities[AbilityType.CLEAVE],
         }),
       ],
       ...this.settings.player.stats,

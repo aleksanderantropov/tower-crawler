@@ -1,5 +1,6 @@
 import type { Settings } from '../configs/settings';
 import type { Ability } from '../types/Ability';
+import { AbilityType } from '../types/AbilityType';
 import type { Combatant } from '../types/Combatant';
 import type { Direction } from '../types/Direction';
 import { ItemType } from '../types/ItemType';
@@ -104,14 +105,16 @@ export class Player implements Combatant {
     return true;
   }
 
-  useAbility(abilityIndex: number): boolean {
-    const ability = this.abilities[abilityIndex];
+  useAbility(abilityType: AbilityType): boolean {
+    const ability = this.abilities.find(
+      (ability) => ability.type === abilityType,
+    );
 
     if (!ability || !ability.ready) {
       return false;
     }
 
-    ability.use(this, this.viewDirection);
+    ability.use(this);
     console.log(`Вы использовали способность ${ability.name}`);
 
     return true;

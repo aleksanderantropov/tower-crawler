@@ -1,11 +1,12 @@
+import type { AbilityType } from './AbilityType';
 import type { Combatant } from './Combatant';
-import type { Direction } from './Direction';
 
 export type Ability = {
+  type: AbilityType;
   cd: number;
   maxCd: number;
   name: string;
   ready: boolean;
-  use(target: Combatant, direction: Direction): void;
+  use(user: Combatant): void;
   decreaseCooldown(): void;
 };

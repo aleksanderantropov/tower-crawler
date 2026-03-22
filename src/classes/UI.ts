@@ -1,4 +1,5 @@
 import type { Settings } from '../configs/settings';
+import { AbilityType } from '../types/AbilityType';
 import type { Player } from './Player';
 
 export class UI {
@@ -34,7 +35,7 @@ export class UI {
 ${player.inventory.map((item, index) => `<li>${item} <button data-index="${index}">Использовать</button></li>`).join('')}
 `;
     this.abilities.innerHTML = `
-${player.abilities.map((ability) => `<li>Q: ${ability.name}: ${ability.ready ? 'Готово' : ability.cd}</li>`).join('')}
+${player.abilities.map((ability) => `<li>${this.settings.keyboardShortcuts.abilities[ability.type].toUpperCase()}: ${ability.name}: ${ability.ready ? 'Готово' : ability.cd}</li>`).join('')}
 `;
   }
 

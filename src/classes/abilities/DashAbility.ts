@@ -1,7 +1,9 @@
 import type { Ability } from '../../types/Ability';
+import { AbilityType } from '../../types/AbilityType';
 import type { Combatant } from '../../types/Combatant';
 import type { Direction } from '../../types/Direction';
 import { Coords } from '../Coords';
+import type { Player } from '../Player';
 
 type isTileWalkable = (tile: Coords) => boolean;
 
@@ -14,6 +16,7 @@ type DashAbilityProps = {
 };
 
 export class DashAbility implements Ability {
+  type = AbilityType.DASH;
   cd: number;
   maxCd: number;
   range: number;
@@ -34,7 +37,7 @@ export class DashAbility implements Ability {
     this.range = range;
   }
 
-  use(target: Combatant, direction: Direction): void {
+  use(user: Player): void {
     if (!this.ready) {
       return;
     }
@@ -43,15 +46,15 @@ export class DashAbility implements Ability {
 
     for (let i = 1; i <= this.range; i++) {
       const nextTile = new Coords(
-        target.coords.x + direction.dx,
-        target.coords.y + direction.dy,
+        user.coords.x + user.viewDirection.dx,
+        user.coords.y + user.viewDirection.dy,
       );
 
       if (!this.isTileWalkable(nextTile)) {
         return;
       }
 
-      target.move(nextTile);
+      user.move(nextTile);
     }
   }
 
