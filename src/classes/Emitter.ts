@@ -10,4 +10,12 @@ export class Emitter<T> {
   emit(payload: T): void {
     this.listeners.forEach((listener) => listener.call(this, payload));
   }
+
+  off(listener: Listener<T>): void {
+    this.listeners = this.listeners.filter((l) => l !== listener);
+  }
+
+  clear(): void {
+    this.listeners = [];
+  }
 }

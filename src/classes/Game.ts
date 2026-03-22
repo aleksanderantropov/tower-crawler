@@ -30,6 +30,7 @@ export class Game {
   private gameInput!: GameInput;
   private menuInput!: MenuInput;
   private ui!: UI;
+  private rafId = 0;
 
   constructor(private settings: Settings) {
     this.renderer = new Renderer(settings.renderer);
@@ -37,9 +38,11 @@ export class Game {
     this.gameInput = new GameInput(settings.ui);
   }
 
-  initialize(): void {
+  private initialize(): void {
+    this.ui = new UI(this.settings.ui);
     this.map = new Map(this.settings.gameMap);
     this.visibility = new Visibility(this.settings.gameMap);
+    this.itemManager = new ItemManager(this.settings.items);
 
     this.player = new Player({
       coords: this.map.getRandomFloorTile(),
@@ -51,45 +54,13 @@ export class Game {
       ],
       ...this.settings.player.stats,
     });
-    this.player.onDamage.on((damage: number) => {
-      this.renderer.playAnimations(
-        new ShakeAnimation({
-          duration:
-            this.settings.renderer.duration.animations[AnimationType.SHAKE],
-        }),
-        new DamageNumberAnimation({
-          duration:
-            this.settings.renderer.duration.animations[
-              AnimationType.DAMAGE_NUMBER
-            ],
-          coords: this.player.coords,
-          damage,
-          isTargetPlayer: true,
-        }),
-      );
-    });
-
-    this.ui = new UI(this.settings.ui);
-
     this.enemyManager = new EnemyManager(this.settings.enemies);
-    this.enemyManager.onSpawn.on((enemy) => {
-      enemy.onDamage.on((damage: number) => {
-        this.renderer.playAnimations(
-          new DamageNumberAnimation({
-            duration:
-              this.settings.renderer.duration.animations[
-                AnimationType.DAMAGE_NUMBER
-              ],
-            coords: enemy.coords,
-            damage,
-          }),
-        );
-      });
-    });
-    this.enemyManager.spawn(this.map.floorTiles.length / 4);
+
+    this.setupAnimationListeners();
+
+    this.enemyManager.spawn(Math.floor(this.map.floorTiles.length / 4));
     this.positionEnemies();
 
-    this.itemManager = new ItemManager(this.settings.items);
     this.gameInput.init();
   }
 
@@ -102,7 +73,7 @@ export class Game {
   }
 
   // Rendering is processed separately for animations
-  renderLoop() {
+  private renderLoop() {
     this.renderer.render({
       tiles: this.map.tiles,
       visibility: this.visibility.tiles,
@@ -111,10 +82,10 @@ export class Game {
       items: this.itemManager.items,
     });
 
-    requestAnimationFrame(() => this.renderLoop());
+    this.rafId = requestAnimationFrame(() => this.renderLoop());
   }
 
-  async gameLoop() {
+  private async gameLoop() {
     while (!this.player.dead) {
       const gameAction = await this.gameInput.awaitAction();
       const successfulAction = this.handleGameAction(gameAction);
@@ -132,12 +103,13 @@ export class Game {
       }
     }
 
-    this.end();
+    await this.end();
   }
 
   async end() {
     this.gameInput.destroy();
     this.ui.showGameOverScreen();
+    cancelAnimationFrame(this.rafId);
 
     const menuAction = await this.menuInput.awaitAction();
     this.handleMenuAction(menuAction);
@@ -222,4 +194,34 @@ export class Game {
       !this.tileHasPlayer(tile)
     );
   };
+
+  private setupAnimationListeners(): void {
+    const animationDurations = this.settings.renderer.duration.animations;
+
+    this.player.onDamage.on((damage: number) => {
+      this.renderer.playAnimations(
+        new ShakeAnimation({
+          duration: animationDurations[AnimationType.SHAKE],
+        }),
+        new DamageNumberAnimation({
+          duration: animationDurations[AnimationType.DAMAGE_NUMBER],
+          coords: this.player.coords,
+          damage,
+          isTargetPlayer: true,
+        }),
+      );
+    });
+
+    this.enemyManager.onSpawn.on((enemy) => {
+      enemy.onDamage.on((damage: number) => {
+        this.renderer.playAnimations(
+          new DamageNumberAnimation({
+            duration: animationDurations[AnimationType.DAMAGE_NUMBER],
+            coords: enemy.coords,
+            damage,
+          }),
+        );
+      });
+    });
+  }
 }
