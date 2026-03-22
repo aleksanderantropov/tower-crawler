@@ -5,6 +5,14 @@ import { Coords } from '../Coords';
 
 type isTileWalkable = (tile: Coords) => boolean;
 
+type DashAbilityProps = {
+  maxCd: number;
+  range: number;
+  isTileWalkable: isTileWalkable;
+  cd?: number;
+  name?: string;
+};
+
 export class DashAbility implements Ability {
   cd: number;
   maxCd: number;
@@ -18,13 +26,7 @@ export class DashAbility implements Ability {
     isTileWalkable,
     cd = 0,
     name = 'Рывок',
-  }: {
-    maxCd: number;
-    range: number;
-    isTileWalkable: isTileWalkable;
-    cd?: number;
-    name?: string;
-  }) {
+  }: DashAbilityProps) {
     this.cd = cd;
     this.maxCd = maxCd;
     this.name = name;

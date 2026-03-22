@@ -6,18 +6,18 @@ export class UI {
   inventory: HTMLDivElement;
   abilities: HTMLDivElement;
   gameOver: HTMLDivElement;
-  settings: Settings['ui'];
 
-  constructor(settings: Settings['ui']) {
-    this.settings = settings;
-
+  constructor(private settings: Settings['ui']) {
     this.stats = document.getElementById(settings.id.stats) as HTMLDivElement;
+
     this.inventory = document.getElementById(
       settings.id.inventory,
     ) as HTMLDivElement;
+
     this.abilities = document.getElementById(
       settings.id.abilities,
     ) as HTMLDivElement;
+
     this.gameOver = document.getElementById(
       settings.id.gameOver,
     ) as HTMLDivElement;

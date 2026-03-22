@@ -5,19 +5,11 @@ import { Coords } from './Coords';
 import { Emitter } from './Emitter';
 import { Enemy } from './Enemy';
 
-type onTakeDamage = (hpLoss: number, coords: Coords) => void;
-// type OnDeath = (hpLoss: number, coords: Coords) => void;
-
 export class EnemyManager {
-  enemies: Enemy[];
-  private settings: Settings['enemies'];
-  readonly onSpawn: Emitter<Enemy>;
+  enemies: Enemy[] = [];
+  readonly onSpawn = new Emitter<Enemy>();
 
-  constructor({ settings }: { settings: Settings['enemies'] }) {
-    this.enemies = [];
-    this.settings = settings;
-    this.onSpawn = new Emitter<Enemy>();
-  }
+  constructor(private settings: Settings['enemies']) {}
 
   spawn(maxEnemies: number): void {
     Object.entries(this.settings.spawn).forEach(

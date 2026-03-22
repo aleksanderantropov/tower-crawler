@@ -1,4 +1,10 @@
 import { Coords } from './Coords';
+type RoomProps = {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
 
 export class Room {
   readonly left: number;
@@ -9,17 +15,7 @@ export class Room {
   readonly height: number;
   readonly center: Coords;
 
-  constructor({
-    width,
-    height,
-    x,
-    y,
-  }: {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-  }) {
+  constructor({ width, height, x, y }: RoomProps) {
     this.left = x;
     this.right = x + width;
     this.top = y;

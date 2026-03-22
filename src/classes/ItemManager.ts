@@ -6,13 +6,9 @@ import { Item } from './Item';
 import type { Player } from './Player';
 
 export class ItemManager {
-  items: Item[];
-  settings: Settings['items'];
+  items: Item[] = [];
 
-  constructor(settings: Settings['items']) {
-    this.items = [];
-    this.settings = settings;
-  }
+  constructor(private settings: Settings['items']) {}
 
   removeItem(item: Item): void {
     this.items = this.items.filter((_item) => _item !== item);

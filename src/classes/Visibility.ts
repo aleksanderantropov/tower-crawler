@@ -9,7 +9,7 @@ export class Visibility {
   width: Settings['gameMap']['width'];
   height: Settings['gameMap']['height'];
   tiles: VisibilityType[][];
-  visibleTiles: Coords[];
+  visibleTiles: Coords[] = [];
 
   constructor({
     width,
@@ -17,7 +17,6 @@ export class Visibility {
   }: Pick<Settings['gameMap'], 'height' | 'width'>) {
     this.width = width;
     this.height = height;
-    this.visibleTiles = [];
 
     this.tiles = Array.from({ length: this.height }, () =>
       Array(width).fill(VisibilityType.HIDDEN),

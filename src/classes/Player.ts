@@ -12,13 +12,13 @@ export class Player implements Combatant {
   currentHp!: number;
   maxHp: number;
   basePower: number;
-  viewDirection: Direction;
   viewRadius: number;
   coords: Coords;
-  inventory: Item[];
-  weapon: Item | null;
   abilities: Ability[];
-  onDamage: Emitter<number>;
+  viewDirection: Direction = { dx: 0, dy: -1 };
+  inventory: Item[] = [];
+  weapon: Item | null = null;
+  onDamage = new Emitter<number>();
 
   constructor({
     coords,
@@ -36,11 +36,6 @@ export class Player implements Combatant {
     this.maxHp = hp;
     this.viewRadius = view;
     this.abilities = abilities;
-    this.viewDirection = { dx: 0, dy: -1 };
-
-    this.inventory = [];
-    this.weapon = null;
-    this.onDamage = new Emitter<number>();
   }
 
   get power(): number {

@@ -17,17 +17,14 @@ export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   tileSize: number;
-  animations: Animation[];
-  settings: Settings['renderer'];
+  animations: Animation[] = [];
 
-  constructor(settings: Settings['renderer']) {
+  constructor(private settings: Settings['renderer']) {
     this.canvas = document.getElementById(settings.id) as HTMLCanvasElement;
     this.canvas.width = settings.width;
     this.canvas.height = settings.height;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this.tileSize = settings.tileSize;
-    this.settings = settings;
-    this.animations = [];
   }
 
   render({

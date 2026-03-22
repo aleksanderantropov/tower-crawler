@@ -7,7 +7,7 @@ export class Map {
   width: number;
   height: number;
   tiles: TileType[][];
-  floorTiles: Coords[];
+  floorTiles: Coords[] = [];
 
   constructor({ width, height, rooms }: Settings['gameMap']) {
     this.width = width;
@@ -15,7 +15,7 @@ export class Map {
     this.tiles = Array.from({ length: this.height }, () =>
       Array(this.width).fill(TileType.WALL),
     );
-    this.floorTiles = [];
+
     this.generate(rooms);
   }
 

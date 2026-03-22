@@ -1,23 +1,20 @@
 import type { ItemType } from '../types/ItemType';
 import type { Coords } from './Coords';
 
+type ItemProps = {
+  coords: Coords;
+  type: ItemType;
+  effectValue: number;
+  name: string;
+};
+
 export class Item {
   coords: Coords;
   type: ItemType;
   effectValue: number;
   name: string;
 
-  constructor({
-    coords,
-    type,
-    effectValue,
-    name,
-  }: {
-    coords: Coords;
-    type: ItemType;
-    effectValue: number;
-    name: string;
-  }) {
+  constructor({ coords, type, effectValue, name }: ItemProps) {
     this.coords = coords;
     this.type = type;
     this.effectValue = effectValue;

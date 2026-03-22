@@ -4,7 +4,7 @@ import { MenuInputType } from '../types/MenuInputType';
 
 export class MenuInput {
   restartButtonElement: HTMLButtonElement;
-  resolvePromise: (action: MenuAction) => void;
+  resolvePromise = (action: MenuAction) => {};
 
   constructor(settings: Settings['ui']) {
     this.restartButtonElement = document.getElementById(
@@ -15,8 +15,6 @@ export class MenuInput {
       'click',
       this.handleRestartClick,
     );
-
-    this.resolvePromise = (action: MenuAction) => {};
   }
 
   handleRestartClick = (): void => {

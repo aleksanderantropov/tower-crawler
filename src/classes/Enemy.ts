@@ -16,7 +16,7 @@ export class Enemy implements Combatant {
   power: EnemyStats['power'];
   maxHp: EnemyStats['hp'];
   lootTable: EnemyLootTable;
-  onDamage: Emitter<number>;
+  onDamage = new Emitter<number>();
 
   constructor({
     coords,
@@ -35,7 +35,6 @@ export class Enemy implements Combatant {
     this.currentHp = hp;
     this.maxHp = hp;
     this.lootTable = lootTable;
-    this.onDamage = new Emitter<number>();
   }
 
   attack(target: Combatant): void {

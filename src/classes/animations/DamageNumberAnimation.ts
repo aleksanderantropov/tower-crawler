@@ -6,14 +6,14 @@ import type { Coords } from '../Coords';
 
 export class DamageNumberAnimation implements Animation {
   duration: number;
-  isFinished: boolean;
-  phase: AnimationRenderingPhase;
   damage: number;
-  opacity: number;
   isTargetPlayer: boolean;
   currentCoords: Coords;
+  opacity = 0;
+  isFinished = false;
+  phase = AnimationRenderingPhase.POST;
+  private startTime = Date.now();
   private initialCoords: Coords;
-  private startTime: number;
 
   constructor({
     coords,
@@ -26,15 +26,10 @@ export class DamageNumberAnimation implements Animation {
     duration: number;
     isTargetPlayer?: boolean;
   }) {
-    this.initialCoords = coords.clone();
     this.duration = duration;
     this.damage = damage;
-
-    this.opacity = 0;
+    this.initialCoords = coords.clone();
     this.currentCoords = this.initialCoords.clone();
-    this.isFinished = false;
-    this.phase = AnimationRenderingPhase.POST;
-    this.startTime = Date.now();
     this.isTargetPlayer = isTargetPlayer;
   }
 

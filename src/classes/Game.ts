@@ -34,13 +34,11 @@ export class Game {
   private gameInput!: GameInput;
   private menuInput!: MenuInput;
   private ui!: UI;
-  private settings: Settings;
 
-  constructor(settings: Settings) {
+  constructor(private settings: Settings) {
     this.renderer = new Renderer(settings.renderer);
     this.menuInput = new MenuInput(settings.ui);
     this.gameInput = new GameInput(settings.ui);
-    this.settings = settings;
   }
 
   initialize(): void {

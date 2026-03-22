@@ -6,11 +6,9 @@ import { GameInputType } from '../types/GameInputType';
 
 export class GameInput {
   inventoryElement: HTMLOListElement;
-  resolvePromise: (action: GameAction) => void;
+  resolvePromise = (action: GameAction) => {};
 
   constructor(settings: Settings['ui']) {
-    this.resolvePromise = (action: GameAction) => {};
-
     this.inventoryElement = document.getElementById(
       settings.id.inventory,
     ) as HTMLOListElement;
