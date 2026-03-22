@@ -4,7 +4,6 @@ import { AnimationType } from '../types/AnimationType';
 import type { Direction } from '../types/Direction';
 import type { GameAction } from '../types/GameAction';
 import { GameInputType } from '../types/GameInputType';
-import { ItemType } from '../types/ItemType';
 import type { MenuAction } from '../types/MenuAction';
 import { MenuInputType } from '../types/MenuInputType';
 import { DashAbility } from './abilities/DashAbility';
@@ -12,17 +11,14 @@ import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 import { ShakeAnimation } from './animations/ShakeAnimation';
 import { Coords } from './Coords';
 import { EnemyManager } from './EnemyManager';
-import { Enemy } from './Enemy';
 import { GameInput } from './GameInput';
-import { Item } from './Item';
+import { ItemManager } from './ItemManager';
 import { Map } from './Map';
 import { MenuInput } from './MenuInput';
 import { Player } from './Player';
 import { Renderer } from './Renderer';
 import { UI } from './UI';
 import { Visibility } from './Visibility';
-import { ItemManager } from './ItemManager';
-import { Emitter } from './Emitter';
 
 export class Game {
   private map!: Map;
