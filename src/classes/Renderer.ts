@@ -1,17 +1,14 @@
-import { TileType } from '../types/TileType';
 import type { Settings } from '../configs/settings';
-import { Coords } from './Coords';
-import type { Visibility } from './Visibility';
-import { VisibilityType } from '../types/VisibilityType';
-import type { Map } from './Map';
-import type { Enemy } from './Enemy';
-import type { Player } from './Player';
-import type { Item } from './Item';
-import { ShakeAnimation } from './animations/ShakeAnimation';
 import type { Animation } from '../types/Animation';
-import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
-import { AnimationType } from '../types/AnimationType';
 import { AnimationRenderingPhase } from '../types/AnimationRenderingPhase';
+import { TileType } from '../types/TileType';
+import { VisibilityType } from '../types/VisibilityType';
+import { Coords } from './Coords';
+import type { Enemy } from './Enemy';
+import type { Item } from './Item';
+import type { Map } from './Map';
+import type { Player } from './Player';
+import type { Visibility } from './Visibility';
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -44,6 +41,7 @@ export class Renderer {
     this.ctx.save();
     this.updateAnimations();
 
+    this.centerCameraOnPlayer(player.coords);
     this.renderPhase(AnimationRenderingPhase.PRE);
     this.drawMap(tiles, visibility);
     this.drawPlayer(player.coords);
@@ -60,6 +58,15 @@ export class Renderer {
 
   private clear(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private centerCameraOnPlayer(player: Coords): void {
+    const cameraOffsetX =
+      player.x * this.tileSize - this.canvas.width / 2 + this.tileSize / 2;
+    const cameraOffsetY =
+      player.y * this.tileSize - this.canvas.height / 2 + this.tileSize / 2;
+
+    this.ctx.translate(-cameraOffsetX, -cameraOffsetY);
   }
 
   private renderPhase(phase: AnimationRenderingPhase): void {

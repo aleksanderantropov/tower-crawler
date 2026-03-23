@@ -5,12 +5,12 @@ import { ItemType } from '../types/ItemType';
 
 export const SETTINGS = {
   gameMap: {
-    width: 20,
-    height: 20,
+    width: 100,
+    height: 100,
     rooms: {
-      maxRooms: 50,
-      minSize: 2,
-      maxSize: 4,
+      maxRooms: 100,
+      minSize: 3,
+      maxSize: 8,
     },
   },
   player: {
@@ -33,8 +33,8 @@ export const SETTINGS = {
   },
   enemies: {
     spawn: {
-      [EnemyType.SLIME]: 16,
-      [EnemyType.SKELETON]: 10,
+      [EnemyType.SLIME]: 200,
+      [EnemyType.SKELETON]: 100,
     },
     stats: {
       [EnemyType.SLIME]: {
