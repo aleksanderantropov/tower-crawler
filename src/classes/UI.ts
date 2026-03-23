@@ -7,6 +7,7 @@ export class UI {
   inventory: HTMLDivElement;
   abilities: HTMLDivElement;
   gameOver: HTMLDivElement;
+  restartButton: HTMLButtonElement;
 
   constructor(private settings: Settings['ui']) {
     this.stats = document.getElementById(settings.id.stats) as HTMLDivElement;
@@ -22,6 +23,10 @@ export class UI {
     this.gameOver = document.getElementById(
       settings.id.gameOver,
     ) as HTMLDivElement;
+
+    this.restartButton = document.getElementById(
+      settings.id.restartButton,
+    ) as HTMLButtonElement;
   }
 
   update(player: Player): void {
@@ -41,6 +46,7 @@ ${player.abilities.map((ability) => `<li>${this.settings.keyboardShortcuts.abili
 
   showGameOverScreen(): void {
     this.gameOver.classList.add('shown');
+    this.restartButton.focus();
   }
 
   hideGameOverScreen(): void {
