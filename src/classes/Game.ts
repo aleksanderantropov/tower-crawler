@@ -9,6 +9,7 @@ import { MenuInputType } from '../types/MenuInputType';
 import { CleaveAbility } from './abilities/CleaveAbility';
 import { DashAbility } from './abilities/DashAbility';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
+import { HitFlashAnimation } from './animations/HitFlashAnimation';
 import { ShakeAnimation } from './animations/ShakeAnimation';
 import { Coords } from './Coords';
 import { EnemyManager } from './EnemyManager';
@@ -220,6 +221,11 @@ export class Game {
     this.enemyManager.onSpawn.on((enemy) => {
       enemy.onDamage.on((damage: number) => {
         this.renderer.playAnimations(
+          new ShakeAnimation({
+            duration: animationDurations[AnimationType.SHAKE],
+            intensity: 0.5,
+          }),
+          new HitFlashAnimation({ coords: enemy.coords, duration: 150 }),
           new DamageNumberAnimation({
             duration: animationDurations[AnimationType.DAMAGE_NUMBER],
             coords: enemy.coords,

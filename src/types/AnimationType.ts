@@ -1,4 +1,5 @@
 export enum AnimationType {
-  SHAKE = 'SHAKE',
   DAMAGE_NUMBER = 'DAMAGE_NUMBER',
+  HIT_FLASH_ANIMATION = 'HIT_FLASH_ANIMATION',
+  SHAKE = 'SHAKE',
 }

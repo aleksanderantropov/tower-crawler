@@ -163,8 +163,6 @@ export class Renderer {
       }
 
       this.ctx.fillStyle = this.settings.colors.enemies[enemy.type];
-      this.ctx.beginPath();
-
       this.ctx.fillRect(
         enemy.coords.x * this.tileSize + 4,
         enemy.coords.y * this.tileSize + 4,
@@ -181,8 +179,6 @@ export class Renderer {
       }
 
       this.ctx.fillStyle = this.settings.colors.items[item.type];
-      this.ctx.beginPath();
-
       this.ctx.fillRect(
         item.coords.x * this.tileSize + 8,
         item.coords.y * this.tileSize + 8,

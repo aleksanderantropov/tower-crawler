@@ -4,13 +4,21 @@ import { Coords } from '../Coords';
 
 export class ShakeAnimation implements Animation {
   duration: number;
+  intensity: number;
   isFinished = false;
   phase = AnimationRenderingPhase.PRE;
   private offset = new Coords(0, 0);
   private startTime = Date.now();
 
-  constructor({ duration }: { duration: number }) {
+  constructor({
+    duration,
+    intensity = 1,
+  }: {
+    duration: number;
+    intensity?: number;
+  }) {
     this.duration = duration;
+    this.intensity = intensity;
   }
 
   render(ctx: CanvasRenderingContext2D): void {
@@ -18,17 +26,17 @@ export class ShakeAnimation implements Animation {
   }
 
   update(): void {
-    if (this.checkHasFinished()) {
+    if (this.hasFinished()) {
       this.isFinished = true;
       this.reset();
       return;
     }
 
-    this.offset.x = (Math.random() - 0.5) * 10;
-    this.offset.y = (Math.random() - 0.5) * 10;
+    this.offset.x = (Math.random() - 0.5) * this.intensity * 10;
+    this.offset.y = (Math.random() - 0.5) * this.intensity * 10;
   }
 
-  private checkHasFinished(): boolean {
+  private hasFinished(): boolean {
     return this.startTime + this.duration <= Date.now();
   }
 

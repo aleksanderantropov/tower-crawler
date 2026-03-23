@@ -97,6 +97,7 @@ export const SETTINGS = {
           player: '#e74c3c',
           enemies: '#f1c40f',
         },
+        [AnimationType.HIT_FLASH_ANIMATION]: '#fff',
       },
     },
     alpha: {
