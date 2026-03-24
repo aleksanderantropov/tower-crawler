@@ -38,22 +38,69 @@ export class Renderer {
     items: Item[];
   }): void {
     this.clear();
-    this.ctx.save();
     this.updateAnimations();
 
-    this.centerCameraOnPlayer(player.coords);
-    this.renderPhase(AnimationRenderingPhase.PRE);
-    this.drawMap(tiles, visibility);
-    this.drawPlayer(player.coords);
-    this.drawEnemies(enemies, visibility);
-    this.drawItems(items, visibility);
-    this.renderPhase(AnimationRenderingPhase.POST);
-
-    this.ctx.restore();
+    this.drawWorld({ player, tiles, visibility, enemies, items });
+    this.drawMinimap({ player, tiles, visibility, enemies, items });
   }
 
   playAnimations(...animations: Animation[]): void {
     this.animations.push(...animations);
+  }
+
+  private drawWorld({
+    player,
+    tiles,
+    visibility,
+    enemies,
+    items,
+  }: Parameters<Renderer['render']>[0]): void {
+    this.ctx.save();
+
+    this.centerCameraOnPlayer(player.coords);
+    this.renderAnimation(AnimationRenderingPhase.PRE);
+    this.drawMap({ tiles, visibility, size: this.tileSize });
+    this.drawPlayer(player.coords);
+    this.drawEnemies(enemies, visibility);
+    this.drawItems(items, visibility);
+    this.renderAnimation(AnimationRenderingPhase.POST);
+
+    this.ctx.restore();
+  }
+
+  private drawMinimap({
+    player,
+    tiles,
+    visibility,
+    enemies,
+    items,
+  }: Parameters<Renderer['render']>[0]): void {
+    const minimapWidth = 200;
+    const minimapHeight = 200;
+
+    const minimapX = 0;
+    const minimapY = this.canvas.height - minimapHeight;
+
+    const scale = Math.min(
+      minimapWidth / tiles[0].length,
+      minimapHeight / tiles.length,
+    );
+
+    this.ctx.save();
+
+    // border
+    this.ctx.strokeStyle = '#e9e9e9';
+    this.ctx.strokeRect(1, 1, minimapWidth + 1, minimapHeight + 1);
+
+    // background
+    this.ctx.globalAlpha = 0.8;
+    this.ctx.fillStyle = '#fff';
+    this.ctx.fillRect(1, 1, minimapWidth, minimapHeight);
+    this.ctx.globalAlpha = 1;
+
+    this.drawMap({ tiles, visibility, size: scale });
+
+    this.ctx.restore();
   }
 
   private clear(): void {
@@ -69,7 +116,7 @@ export class Renderer {
     this.ctx.translate(-cameraOffsetX, -cameraOffsetY);
   }
 
-  private renderPhase(phase: AnimationRenderingPhase): void {
+  private renderAnimation(phase: AnimationRenderingPhase): void {
     this.animations
       .filter((animation) => animation.phase === phase)
       .forEach((animation) => animation.render(this.ctx, this.settings));
@@ -85,13 +132,26 @@ export class Renderer {
     });
   }
 
-  private drawMap(tiles: Map['tiles'], visibility: Visibility['tiles']): void {
+  private drawMap({
+    tiles,
+    visibility,
+    size,
+  }: {
+    tiles: Map['tiles'];
+    visibility: Visibility['tiles'];
+    size: number;
+  }): void {
     for (let y = 0; y < tiles.length; y++) {
       for (let x = 0; x < tiles[y].length; x++) {
         const fillStyle = this.getTileFillStyle(tiles[y][x]);
         const alpha = this.getAlphaValue(visibility[y][x]);
 
-        this.drawTile({ fillStyle, alpha, coords: new Coords(x, y) });
+        this.drawTile({
+          fillStyle,
+          alpha,
+          coords: new Coords(x, y),
+          size,
+        });
       }
     }
   }
@@ -100,20 +160,17 @@ export class Renderer {
     fillStyle,
     alpha,
     coords,
+    size,
   }: {
     fillStyle: string;
     alpha: number;
     coords: Coords;
+    size: number;
   }): void {
     this.ctx.globalAlpha = alpha;
     this.ctx.fillStyle = fillStyle;
 
-    this.ctx.fillRect(
-      coords.x * this.tileSize,
-      coords.y * this.tileSize,
-      this.tileSize,
-      this.tileSize,
-    );
+    this.ctx.fillRect(coords.x * size, coords.y * size, size, size);
 
     this.ctx.globalAlpha = this.settings.alpha.visibility.default;
   }
