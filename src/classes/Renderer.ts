@@ -78,9 +78,6 @@ export class Renderer {
     const minimapWidth = 200;
     const minimapHeight = 200;
 
-    const minimapX = 0;
-    const minimapY = this.canvas.height - minimapHeight;
-
     const scale = Math.min(
       minimapWidth / tiles[0].length,
       minimapHeight / tiles.length,
@@ -141,10 +138,14 @@ export class Renderer {
     visibility: Visibility['tiles'];
     size: number;
   }): void {
+    const { tiles: tileColors } = this.settings.colors;
+    const { visibility: tileVisibility } = this.settings.alpha;
+
     for (let y = 0; y < tiles.length; y++) {
       for (let x = 0; x < tiles[y].length; x++) {
-        const fillStyle = this.getTileFillStyle(tiles[y][x]);
-        const alpha = this.getAlphaValue(visibility[y][x]);
+        const fillStyle = tileColors[tiles[y][x]] ?? tileColors.default;
+        const alpha =
+          tileVisibility[visibility[y][x]] ?? tileVisibility.default;
 
         this.drawTile({
           fillStyle,
@@ -173,30 +174,6 @@ export class Renderer {
     this.ctx.fillRect(coords.x * size, coords.y * size, size, size);
 
     this.ctx.globalAlpha = this.settings.alpha.visibility.default;
-  }
-
-  private getTileFillStyle(tile: TileType): string {
-    switch (tile) {
-      case TileType.FLOOR:
-        return this.settings.colors.tiles.floor;
-      case TileType.WALL:
-        return this.settings.colors.tiles.wall;
-      default:
-        return this.settings.colors.tiles.default;
-    }
-  }
-
-  private getAlphaValue(visibility: VisibilityType): number {
-    switch (visibility) {
-      case VisibilityType.HIDDEN:
-        return this.settings.alpha.visibility.hidden;
-      case VisibilityType.REVEALED:
-        return this.settings.alpha.visibility.revealed;
-      case VisibilityType.VISIBLE:
-        return this.settings.alpha.visibility.visible;
-      default:
-        return this.settings.alpha.visibility.default;
-    }
   }
 
   private drawPlayer(player: Coords): void {

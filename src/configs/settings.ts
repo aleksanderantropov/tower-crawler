@@ -1,7 +1,10 @@
+import { Visibility } from '../classes/Visibility';
 import { AbilityType } from '../types/AbilityType';
 import { AnimationType } from '../types/AnimationType';
 import { EnemyType } from '../types/EnemyType';
 import { ItemType } from '../types/ItemType';
+import { TileType } from '../types/TileType';
+import { VisibilityType } from '../types/VisibilityType';
 
 export const SETTINGS = {
   gameMap: {
@@ -87,9 +90,8 @@ export const SETTINGS = {
         [ItemType.WEAPON]: '#9b59b6',
       },
       tiles: {
-        floor: '#2c3e50',
-        wall: '#ecf0f1',
-        fog: '#000',
+        [TileType.FLOOR]: '#2c3e50',
+        [TileType.WALL]: '#ecf0f1',
         default: '#fff',
       },
       animations: {
@@ -102,9 +104,9 @@ export const SETTINGS = {
     },
     alpha: {
       visibility: {
-        hidden: 0,
-        revealed: 0.5,
-        visible: 1,
+        [VisibilityType.HIDDEN]: 0,
+        [VisibilityType.REVEALED]: 0.5,
+        [VisibilityType.VISIBLE]: 1,
         default: 1,
       },
     },
