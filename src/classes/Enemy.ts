@@ -18,6 +18,7 @@ export class Enemy implements Combatant {
   maxHp: EnemyStats['hp'];
   lootTable: EnemyLootTable;
   onDamage = new Emitter<number>();
+  onMove = new Emitter<{ initialCoords: Coords; targetCoords: Coords }>();
 
   constructor({
     coords,
@@ -46,6 +47,11 @@ export class Enemy implements Combatant {
   }
 
   move(coords: Coords): void {
+    this.onMove.emit({
+      targetCoords: coords,
+      initialCoords: this.coords,
+    });
+
     this.coords = coords;
   }
 

@@ -1,4 +1,5 @@
 import type { Motion } from '../../types/Motion';
+import { clamp } from '../../utils/clamp';
 import { Coords } from '../Coords';
 
 export class Movement implements Motion {
@@ -29,11 +30,14 @@ export class Movement implements Motion {
   }
 
   update(): void {
-    const progress = (Date.now() - this.startTime) / this.duration;
-
-    if (progress >= 1) {
-      this.isFinished = true;
+    if (this.isFinished) {
       return;
+    }
+
+    const progress = clamp((Date.now() - this.startTime) / this.duration, 0, 1);
+
+    if (progress === 1) {
+      this.isFinished = true;
     }
 
     const intermediateX =

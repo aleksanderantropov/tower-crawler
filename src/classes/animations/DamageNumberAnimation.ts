@@ -2,6 +2,7 @@ import type { Settings } from '../../configs/settings';
 import type { Animation } from '../../types/Animation';
 import { AnimationRenderingPhase } from '../../types/AnimationRenderingPhase';
 import { AnimationType } from '../../types/AnimationType';
+import { clamp } from '../../utils/clamp';
 import type { Coords } from '../Coords';
 
 export class DamageNumberAnimation implements Animation {
@@ -50,11 +51,14 @@ export class DamageNumberAnimation implements Animation {
   }
 
   update(): void {
-    const progress = (Date.now() - this.startTime) / this.duration;
-
-    if (progress >= 1) {
-      this.isFinished = true;
+    if (this.isFinished) {
       return;
+    }
+
+    const progress = clamp((Date.now() - this.startTime) / this.duration, 0, 1);
+
+    if (progress === 1) {
+      this.isFinished = true;
     }
 
     this.currentCoords.y = this.initialCoords.y - progress * 1;

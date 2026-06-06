@@ -255,6 +255,25 @@ export class Game {
           }),
         );
       });
+
+      enemy.onMove.on(
+        ({
+          initialCoords,
+          targetCoords,
+        }: {
+          initialCoords: Coords;
+          targetCoords: Coords;
+        }) => {
+          this.renderer.startMotion(
+            new Movement({
+              unitId: enemy.id,
+              initialCoords,
+              targetCoords,
+              duration: 150,
+            }),
+          );
+        },
+      );
     });
   }
 }

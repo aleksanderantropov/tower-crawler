@@ -14,7 +14,7 @@ export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   animations: Animation[] = [];
-  motions = new Map<string, Motion>();
+  motions = new Map<string, Motion[]>();
 
   constructor(private settings: Settings['renderer']) {
     this.canvas = document.getElementById(
@@ -51,7 +51,9 @@ export class Renderer {
   }
 
   startMotion(motion: Motion): void {
-    this.motions.set(motion.unitId, motion);
+    const queue = this.motions.get(motion.unitId) ?? [];
+    queue.push(motion);
+    this.motions.set(motion.unitId, queue);
   }
 
   private drawWorld({
@@ -77,7 +79,7 @@ export class Renderer {
   }
 
   private calcPlayerIntermediateCoords(player: Player): Coords {
-    return this.motions.get(player.id)?.currentCoords ?? player.coords;
+    return this.motions.get(player.id)?.[0].currentCoords ?? player.coords;
   }
 
   private drawMinimap({
@@ -144,9 +146,13 @@ export class Renderer {
   }
 
   private updateMotions() {
-    for (const [unitId, motion] of this.motions.entries()) {
+    for (const [unitId, queue] of this.motions.entries()) {
+      const motion = queue[0];
       if (motion.isFinished) {
-        this.motions.delete(unitId);
+        queue.shift();
+        if (!queue.length) {
+          this.motions.delete(unitId);
+        }
       } else {
         motion.update();
       }
@@ -230,10 +236,13 @@ export class Renderer {
         return;
       }
 
+      const visualCoords =
+        this.motions.get(enemy.id)?.[0].currentCoords ?? enemy.coords;
+
       this.ctx.fillStyle = this.settings.enemies[enemy.type].color;
       this.ctx.fillRect(
-        enemy.coords.x * this.settings.world.tileSize + 4,
-        enemy.coords.y * this.settings.world.tileSize + 4,
+        visualCoords.x * this.settings.world.tileSize + 4,
+        visualCoords.y * this.settings.world.tileSize + 4,
         this.settings.world.tileSize - 8,
         this.settings.world.tileSize - 8,
       );
