@@ -1,7 +1,5 @@
 import type { Ability } from '../../types/Ability';
 import { AbilityType } from '../../types/AbilityType';
-import type { Combatant } from '../../types/Combatant';
-import type { Direction } from '../../types/Direction';
 import { Coords } from '../Coords';
 import type { Player } from '../Player';
 
@@ -45,10 +43,7 @@ export class DashAbility implements Ability {
     this.cd = this.maxCd;
 
     for (let i = 1; i <= this.range; i++) {
-      const nextTile = new Coords(
-        user.coords.x + user.viewDirection.dx,
-        user.coords.y + user.viewDirection.dy,
-      );
+      const nextTile = user.coords.clone().add(user.viewDirection);
 
       if (!this.isTileWalkable(nextTile)) {
         return;

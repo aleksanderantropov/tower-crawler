@@ -1,9 +1,8 @@
 import type { Settings } from '../configs/settings';
-import type { Ability } from '../types/Ability';
 import { AbilityType } from '../types/AbilityType';
-import type { Direction } from '../types/Direction';
 import type { GameAction } from '../types/GameAction';
 import { GameInputType } from '../types/GameInputType';
+import { Coords } from './Coords';
 
 export class GameInput {
   inventoryElement: HTMLOListElement;
@@ -27,12 +26,12 @@ export class GameInput {
   };
 
   handleMoveKeys(event: KeyboardEvent): void {
-    const moveDirections: { [key: KeyboardEvent['code']]: Direction } = {
-      ArrowUp: { dx: 0, dy: -1 },
-      ArrowDown: { dx: 0, dy: 1 },
-      ArrowLeft: { dx: -1, dy: 0 },
-      ArrowRight: { dx: 1, dy: 0 },
-      Space: { dx: 0, dy: 0 },
+    const moveDirections: { [key: KeyboardEvent['code']]: Coords } = {
+      ArrowUp: new Coords(0, -1),
+      ArrowDown: new Coords(0, 1),
+      ArrowLeft: new Coords(-1, 0),
+      ArrowRight: new Coords(1, 0),
+      Space: new Coords(0, 0),
     };
 
     const moveDirection = moveDirections[event.code];

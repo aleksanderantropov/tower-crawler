@@ -1,5 +1,3 @@
-import type { Direction } from '../types/Direction';
-
 export class Coords {
   constructor(
     public x: number,
@@ -10,11 +8,43 @@ export class Coords {
     return this.x === coords.x && this.y === coords.y;
   }
 
-  clone(direction?: Direction): Coords {
-    if (!direction) {
-      return new Coords(this.x, this.y);
+  clone(): Coords {
+    return new Coords(this.x, this.y);
+  }
+
+  multiply(multiplier: number | Coords): this {
+    if (multiplier instanceof Coords) {
+      this.x *= multiplier.x;
+      this.y *= multiplier.y;
+    } else {
+      this.x *= multiplier;
+      this.y *= multiplier;
     }
 
-    return new Coords(this.x + direction.dx, this.y + direction.dy);
+    return this;
+  }
+
+  add(addend: number | Coords): this {
+    if (addend instanceof Coords) {
+      this.x += addend.x;
+      this.y += addend.y;
+    } else {
+      this.x += addend;
+      this.y += addend;
+    }
+
+    return this;
+  }
+
+  subtract(addend: number | Coords): this {
+    if (addend instanceof Coords) {
+      this.x -= addend.x;
+      this.y -= addend.y;
+    } else {
+      this.x -= addend;
+      this.y -= addend;
+    }
+
+    return this;
   }
 }

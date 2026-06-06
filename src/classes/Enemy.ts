@@ -69,8 +69,8 @@ export class Enemy implements Combatant {
     const dx = Math.sign(target.coords.x - this.coords.x);
     const dy = Math.sign(target.coords.y - this.coords.y);
 
-    const moveX = this.coords.clone({ dx, dy: 0 });
-    const moveY = this.coords.clone({ dx: 0, dy });
+    const moveX = this.coords.clone().add(new Coords(dx, 0));
+    const moveY = this.coords.clone().add(new Coords(0, dy));
 
     if (dx && isTileWalkable(moveX)) {
       this.move(moveX);

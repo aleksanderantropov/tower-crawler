@@ -2,7 +2,6 @@ import type { Settings } from '../configs/settings';
 import type { Ability } from '../types/Ability';
 import { AbilityType } from '../types/AbilityType';
 import type { Combatant } from '../types/Combatant';
-import type { Direction } from '../types/Direction';
 import { ItemType } from '../types/ItemType';
 import { Coords } from './Coords';
 import { Emitter } from './Emitter';
@@ -16,10 +15,11 @@ export class Player implements Combatant {
   viewRadius: number;
   coords: Coords;
   abilities: Ability[];
-  viewDirection: Direction = { dx: 0, dy: -1 };
+  viewDirection: Coords = new Coords(0, -1);
   inventory: Item[] = [];
   weapon: Item | null = null;
   onDamage = new Emitter<number>();
+  onMove = new Emitter<{ initialCoords: Coords; targetCoords: Coords }>();
 
   constructor({
     coords,
@@ -44,10 +44,12 @@ export class Player implements Combatant {
   }
 
   move(coords: Coords) {
-    this.viewDirection = {
-      dx: coords.x - this.coords.x,
-      dy: coords.y - this.coords.y,
-    };
+    this.onMove.emit({
+      targetCoords: coords,
+      initialCoords: this.coords,
+    });
+
+    this.viewDirection = coords.clone().subtract(this.coords);
     this.coords = coords;
   }
 

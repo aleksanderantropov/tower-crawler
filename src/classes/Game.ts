@@ -1,7 +1,6 @@
 import type { Settings } from '../configs/settings';
 import { AbilityType } from '../types/AbilityType';
 import { AnimationType } from '../types/AnimationType';
-import type { Direction } from '../types/Direction';
 import type { GameAction } from '../types/GameAction';
 import { GameInputType } from '../types/GameInputType';
 import type { MenuAction } from '../types/MenuAction';
@@ -10,6 +9,7 @@ import { CleaveAbility } from './abilities/CleaveAbility';
 import { DashAbility } from './abilities/DashAbility';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 import { HitFlashAnimation } from './animations/HitFlashAnimation';
+import { MoveAnimation } from './animations/MoveAnimation';
 import { ShakeAnimation } from './animations/ShakeAnimation';
 import { Coords } from './Coords';
 import { EnemyManager } from './EnemyManager';
@@ -140,9 +140,8 @@ export class Game {
     return successfulAction;
   }
 
-  private handlePlayerMove(direction: Direction): void {
-    const targetTile = this.player.coords.clone(direction);
-
+  private handlePlayerMove(direction: Coords): void {
+    const targetTile = this.player.coords.clone().add(direction);
     const targetEnemy = this.enemyManager.findByTile(targetTile);
 
     if (targetEnemy) {
@@ -217,6 +216,24 @@ export class Game {
         }),
       );
     });
+
+    this.player.onMove.on(
+      ({
+        initialCoords,
+        targetCoords,
+      }: {
+        initialCoords: Coords;
+        targetCoords: Coords;
+      }) => {
+        this.renderer.playAnimations(
+          new MoveAnimation({
+            targetCoords,
+            initialCoords,
+            duration: 200,
+          }),
+        );
+      },
+    );
 
     this.enemyManager.onSpawn.on((enemy) => {
       enemy.onDamage.on((damage: number) => {
