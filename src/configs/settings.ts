@@ -11,9 +11,9 @@ export const SETTINGS = {
     width: 100,
     height: 100,
     rooms: {
-      maxRooms: 100,
-      minSize: 3,
-      maxSize: 8,
+      maxRooms: 500,
+      minSize: 4,
+      maxSize: 20,
     },
   },
   player: {
@@ -75,50 +75,65 @@ export const SETTINGS = {
     },
   },
   renderer: {
-    id: 'canvas',
-    tileSize: 32,
-    width: 640,
-    height: 640,
-    colors: {
-      player: '#e74c3c',
-      enemies: {
-        [EnemyType.SLIME]: '#207e1d',
-        [EnemyType.SKELETON]: '#6a6c6a',
+    canvas: {
+      id: 'canvas',
+      width: 640,
+      height: 640,
+    },
+    world: {
+      tileSize: 32,
+    },
+    minimap: {
+      width: 200,
+      height: 200,
+      borderWidth: 1,
+      alpha: 0.8,
+    },
+    player: {
+      color: '#e74c3c',
+    },
+    enemies: {
+      [EnemyType.SLIME]: {
+        color: '#207e1d',
       },
-      items: {
-        [ItemType.POTION]: '#af2121',
-        [ItemType.WEAPON]: '#9b59b6',
-      },
-      tiles: {
-        [TileType.FLOOR]: '#2c3e50',
-        [TileType.WALL]: '#ecf0f1',
-        default: '#fff',
-      },
-      animations: {
-        [AnimationType.DAMAGE_NUMBER]: {
-          player: '#e74c3c',
-          enemies: '#f1c40f',
-        },
-        [AnimationType.HIT_FLASH_ANIMATION]: '#fff',
+      [EnemyType.SKELETON]: {
+        color: '#6a6c6a',
       },
     },
-    alpha: {
-      visibility: {
+    items: {
+      [ItemType.POTION]: {
+        color: '#af2121',
+      },
+      [ItemType.WEAPON]: { color: '#9b59b6' },
+    },
+    tiles: {
+      [TileType.FLOOR]: { color: '#2c3e50' },
+      [TileType.WALL]: { color: '#ecf0f1' },
+      default: { color: '#fff' },
+    },
+    visibility: {
+      alpha: {
         [VisibilityType.HIDDEN]: 0,
         [VisibilityType.REVEALED]: 0.5,
         [VisibilityType.VISIBLE]: 1,
         default: 1,
       },
     },
-    text: {
-      animations: {
-        [AnimationType.DAMAGE_NUMBER]: 'bold 16px sans-serif',
+    animations: {
+      [AnimationType.SHAKE]: {
+        duration: 100,
       },
-    },
-    duration: {
-      animations: {
-        [AnimationType.SHAKE]: 100,
-        [AnimationType.DAMAGE_NUMBER]: 1000,
+      [AnimationType.DAMAGE_NUMBER]: {
+        colors: {
+          player: '#e74c3c',
+          enemies: '#f1c40f',
+        },
+        text: 'bold 16px sans-serif',
+        duration: 1000,
+      },
+      [AnimationType.HIT_FLASH_ANIMATION]: {
+        color: '#fff',
+        duration: 150,
       },
     },
   },

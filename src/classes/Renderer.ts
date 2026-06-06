@@ -13,15 +13,15 @@ import type { Visibility } from './Visibility';
 export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  tileSize: number;
   animations: Animation[] = [];
 
   constructor(private settings: Settings['renderer']) {
-    this.canvas = document.getElementById(settings.id) as HTMLCanvasElement;
-    this.canvas.width = settings.width;
-    this.canvas.height = settings.height;
+    this.canvas = document.getElementById(
+      settings.canvas.id,
+    ) as HTMLCanvasElement;
+    this.canvas.width = settings.canvas.width;
+    this.canvas.height = settings.canvas.height;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-    this.tileSize = settings.tileSize;
   }
 
   render({
@@ -59,7 +59,7 @@ export class Renderer {
 
     this.centerCameraOnPlayer(player.coords);
     this.renderAnimation(AnimationRenderingPhase.PRE);
-    this.drawMap({ tiles, visibility, size: this.tileSize });
+    this.drawMap({ tiles, visibility, size: this.settings.world.tileSize });
     this.drawPlayer(player.coords);
     this.drawEnemies(enemies, visibility);
     this.drawItems(items, visibility);
@@ -69,31 +69,29 @@ export class Renderer {
   }
 
   private drawMinimap({
-    player,
     tiles,
     visibility,
-    enemies,
-    items,
   }: Parameters<Renderer['render']>[0]): void {
-    const minimapWidth = 200;
-    const minimapHeight = 200;
+    const { alpha, borderWidth, height, width } = this.settings.minimap;
 
-    const scale = Math.min(
-      minimapWidth / tiles[0].length,
-      minimapHeight / tiles.length,
-    );
+    const scale = Math.min(width / tiles[0].length, height / tiles.length);
 
     this.ctx.save();
 
     // border
     this.ctx.strokeStyle = '#e9e9e9';
-    this.ctx.strokeRect(1, 1, minimapWidth + 1, minimapHeight + 1);
+    this.ctx.strokeRect(
+      borderWidth,
+      borderWidth,
+      width + borderWidth,
+      height + borderWidth,
+    );
 
     // background
-    this.ctx.globalAlpha = 0.8;
+    this.ctx.globalAlpha = alpha;
     this.ctx.fillStyle = '#fff';
-    this.ctx.fillRect(1, 1, minimapWidth, minimapHeight);
-    this.ctx.globalAlpha = 1;
+    this.ctx.fillRect(borderWidth, borderWidth, width, height);
+    this.ctx.globalAlpha = borderWidth;
 
     this.drawMap({ tiles, visibility, size: scale });
 
@@ -106,9 +104,13 @@ export class Renderer {
 
   private centerCameraOnPlayer(player: Coords): void {
     const cameraOffsetX =
-      player.x * this.tileSize - this.canvas.width / 2 + this.tileSize / 2;
+      player.x * this.settings.world.tileSize -
+      this.canvas.width / 2 +
+      this.settings.world.tileSize / 2;
     const cameraOffsetY =
-      player.y * this.tileSize - this.canvas.height / 2 + this.tileSize / 2;
+      player.y * this.settings.world.tileSize -
+      this.canvas.height / 2 +
+      this.settings.world.tileSize / 2;
 
     this.ctx.translate(-cameraOffsetX, -cameraOffsetY);
   }
@@ -138,12 +140,12 @@ export class Renderer {
     visibility: Visibility['tiles'];
     size: number;
   }): void {
-    const { tiles: tileColors } = this.settings.colors;
-    const { visibility: tileVisibility } = this.settings.alpha;
+    const tileColors = this.settings.tiles;
+    const tileVisibility = this.settings.visibility.alpha;
 
     for (let y = 0; y < tiles.length; y++) {
       for (let x = 0; x < tiles[y].length; x++) {
-        const fillStyle = tileColors[tiles[y][x]] ?? tileColors.default;
+        const fillStyle = (tileColors[tiles[y][x]] ?? tileColors.default).color;
         const alpha =
           tileVisibility[visibility[y][x]] ?? tileVisibility.default;
 
@@ -173,17 +175,27 @@ export class Renderer {
 
     this.ctx.fillRect(coords.x * size, coords.y * size, size, size);
 
-    this.ctx.globalAlpha = this.settings.alpha.visibility.default;
+    this.ctx.globalAlpha = this.settings.visibility.alpha.default;
   }
 
   private drawPlayer(player: Coords): void {
-    this.ctx.fillStyle = this.settings.colors.player;
+    this.ctx.fillStyle = this.settings.player.color;
     this.ctx.beginPath();
 
     // Convert coords to tileSize and shift by 1/2 of tileSize to center
-    const centerX = player.x * this.tileSize + this.tileSize / 2;
-    const centerY = player.y * this.tileSize + this.tileSize / 2;
-    this.ctx.arc(centerX, centerY, this.tileSize / 3, 0, Math.PI * 2);
+    const centerX =
+      player.x * this.settings.world.tileSize +
+      this.settings.world.tileSize / 2;
+    const centerY =
+      player.y * this.settings.world.tileSize +
+      this.settings.world.tileSize / 2;
+    this.ctx.arc(
+      centerX,
+      centerY,
+      this.settings.world.tileSize / 3,
+      0,
+      Math.PI * 2,
+    );
 
     this.ctx.fill();
   }
@@ -196,12 +208,12 @@ export class Renderer {
         return;
       }
 
-      this.ctx.fillStyle = this.settings.colors.enemies[enemy.type];
+      this.ctx.fillStyle = this.settings.enemies[enemy.type].color;
       this.ctx.fillRect(
-        enemy.coords.x * this.tileSize + 4,
-        enemy.coords.y * this.tileSize + 4,
-        this.tileSize - 8,
-        this.tileSize - 8,
+        enemy.coords.x * this.settings.world.tileSize + 4,
+        enemy.coords.y * this.settings.world.tileSize + 4,
+        this.settings.world.tileSize - 8,
+        this.settings.world.tileSize - 8,
       );
     });
   }
@@ -212,12 +224,12 @@ export class Renderer {
         return;
       }
 
-      this.ctx.fillStyle = this.settings.colors.items[item.type];
+      this.ctx.fillStyle = this.settings.items[item.type].color;
       this.ctx.fillRect(
-        item.coords.x * this.tileSize + 8,
-        item.coords.y * this.tileSize + 8,
-        this.tileSize - 16,
-        this.tileSize - 16,
+        item.coords.x * this.settings.world.tileSize + 8,
+        item.coords.y * this.settings.world.tileSize + 8,
+        this.settings.world.tileSize - 16,
+        this.settings.world.tileSize - 16,
       );
     });
   }

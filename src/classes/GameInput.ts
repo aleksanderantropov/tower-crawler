@@ -61,7 +61,7 @@ export class GameInput {
   }
 
   handleAbilityKeys(event: KeyboardEvent): void {
-    const abilityTypes: { [key: KeyboardEvent['key']]: number } = {
+    const abilityTypes: Partial<Record<KeyboardEvent['key'], AbilityType>> = {
       q: AbilityType.DASH,
       e: AbilityType.CLEAVE,
     };

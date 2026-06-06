@@ -202,15 +202,15 @@ export class Game {
   };
 
   private setupAnimationListeners(): void {
-    const animationDurations = this.settings.renderer.duration.animations;
+    const animationSettings = this.settings.renderer.animations;
 
     this.player.onDamage.on((damage: number) => {
       this.renderer.playAnimations(
         new ShakeAnimation({
-          duration: animationDurations[AnimationType.SHAKE],
+          duration: animationSettings[AnimationType.SHAKE].duration,
         }),
         new DamageNumberAnimation({
-          duration: animationDurations[AnimationType.DAMAGE_NUMBER],
+          duration: animationSettings[AnimationType.DAMAGE_NUMBER].duration,
           coords: this.player.coords,
           damage,
           isTargetPlayer: true,
@@ -222,12 +222,16 @@ export class Game {
       enemy.onDamage.on((damage: number) => {
         this.renderer.playAnimations(
           new ShakeAnimation({
-            duration: animationDurations[AnimationType.SHAKE],
+            duration: animationSettings[AnimationType.SHAKE].duration,
             intensity: 0.5,
           }),
-          new HitFlashAnimation({ coords: enemy.coords, duration: 150 }),
+          new HitFlashAnimation({
+            coords: enemy.coords,
+            duration:
+              animationSettings[AnimationType.HIT_FLASH_ANIMATION].duration,
+          }),
           new DamageNumberAnimation({
-            duration: animationDurations[AnimationType.DAMAGE_NUMBER],
+            duration: animationSettings[AnimationType.DAMAGE_NUMBER].duration,
             coords: enemy.coords,
             damage,
           }),

@@ -35,15 +35,17 @@ export class DamageNumberAnimation implements Animation {
 
   render(ctx: CanvasRenderingContext2D, settings: Settings['renderer']): void {
     ctx.globalAlpha = this.opacity;
+    const config = settings.animations[AnimationType.DAMAGE_NUMBER];
+    const tileSize = settings.world.tileSize;
     ctx.fillStyle = this.isTargetPlayer
-      ? settings.colors.animations[AnimationType.DAMAGE_NUMBER].player
-      : settings.colors.animations[AnimationType.DAMAGE_NUMBER].enemies;
-    ctx.font = settings.text.animations[AnimationType.DAMAGE_NUMBER];
+      ? config.colors.player
+      : config.colors.enemies;
+    ctx.font = config.text;
     ctx.textAlign = 'center';
     ctx.fillText(
       this.damage.toString(),
-      this.currentCoords.x * settings.tileSize + settings.tileSize / 2,
-      this.currentCoords.y * settings.tileSize,
+      this.currentCoords.x * tileSize + tileSize / 2,
+      this.currentCoords.y * tileSize,
     );
   }
 

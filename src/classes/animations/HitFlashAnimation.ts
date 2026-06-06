@@ -30,15 +30,16 @@ export class HitFlashAnimation implements Animation {
 
   render(ctx: CanvasRenderingContext2D, settings: Settings['renderer']): void {
     const defaultOpacity = ctx.globalAlpha;
+    const tileSize = settings.world.tileSize;
 
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle =
-      settings.colors.animations[AnimationType.HIT_FLASH_ANIMATION];
+      settings.animations[AnimationType.HIT_FLASH_ANIMATION].color;
     ctx.fillRect(
-      this.coords.x * settings.tileSize + 4,
-      this.coords.y * settings.tileSize + 4,
-      settings.tileSize - 8,
-      settings.tileSize - 8,
+      this.coords.x * tileSize + 4,
+      this.coords.y * tileSize + 4,
+      tileSize - 8,
+      tileSize - 8,
     );
 
     ctx.globalAlpha = defaultOpacity;
