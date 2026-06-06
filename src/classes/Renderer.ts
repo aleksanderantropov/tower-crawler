@@ -1,7 +1,7 @@
 import type { Settings } from '../configs/settings';
 import type { Animation } from '../types/Animation';
 import { AnimationRenderingPhase } from '../types/AnimationRenderingPhase';
-import { TileType } from '../types/TileType';
+import type { Motion } from '../types/Motion';
 import { VisibilityType } from '../types/VisibilityType';
 import { Coords } from './Coords';
 import type { Enemy } from './Enemy';
@@ -14,6 +14,7 @@ export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   animations: Animation[] = [];
+  motions: Motion[] = [];
 
   constructor(private settings: Settings['renderer']) {
     this.canvas = document.getElementById(
@@ -38,6 +39,7 @@ export class Renderer {
     items: Item[];
   }): void {
     this.clear();
+    this.updateMotions();
     this.updateAnimations();
 
     this.drawWorld({ player, tiles, visibility, enemies, items });
@@ -46,6 +48,10 @@ export class Renderer {
 
   playAnimations(...animations: Animation[]): void {
     this.animations.push(...animations);
+  }
+
+  startMotion(motion: Motion): void {
+    this.motions.push(motion);
   }
 
   private drawWorld({
@@ -57,15 +63,21 @@ export class Renderer {
   }: Parameters<Renderer['render']>[0]): void {
     this.ctx.save();
 
-    this.centerCameraOnPlayer(player.coords);
+    const playerCoords = this.calcPlayerIntermediateCoords(player.coords);
+
+    this.centerCameraOnPlayer(playerCoords);
     this.renderAnimation(AnimationRenderingPhase.PRE);
     this.drawMap({ tiles, visibility, size: this.settings.world.tileSize });
-    this.drawPlayer(player.coords);
+    this.drawPlayer(playerCoords);
     this.drawEnemies(enemies, visibility);
     this.drawItems(items, visibility);
     this.renderAnimation(AnimationRenderingPhase.POST);
 
     this.ctx.restore();
+  }
+
+  private calcPlayerIntermediateCoords(player: Coords): Coords {
+    return this.motions[0]?.currentCoords ?? player;
   }
 
   private drawMinimap({
@@ -128,6 +140,14 @@ export class Renderer {
 
     this.animations.forEach((animation) => {
       animation.update();
+    });
+  }
+
+  private updateMotions() {
+    this.motions = this.motions.filter((motion) => !motion.isFinished);
+
+    this.motions.forEach((motion) => {
+      motion.update();
     });
   }
 

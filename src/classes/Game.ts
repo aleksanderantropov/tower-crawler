@@ -9,7 +9,7 @@ import { CleaveAbility } from './abilities/CleaveAbility';
 import { DashAbility } from './abilities/DashAbility';
 import { DamageNumberAnimation } from './animations/DamageNumberAnimation';
 import { HitFlashAnimation } from './animations/HitFlashAnimation';
-import { MoveAnimation } from './animations/MoveAnimation';
+import { Movement } from './motions/Movement';
 import { ShakeAnimation } from './animations/ShakeAnimation';
 import { Coords } from './Coords';
 import { EnemyManager } from './EnemyManager';
@@ -62,7 +62,7 @@ export class Game {
     });
     this.enemyManager = new EnemyManager(this.settings.enemies);
 
-    this.setupAnimationListeners();
+    this.setupVisualListeners();
 
     this.enemyManager.spawn(Math.floor(this.map.floorTiles.length / 4));
     this.positionEnemies();
@@ -200,7 +200,7 @@ export class Game {
     );
   };
 
-  private setupAnimationListeners(): void {
+  private setupVisualListeners(): void {
     const animationSettings = this.settings.renderer.animations;
 
     this.player.onDamage.on((damage: number) => {
@@ -225,11 +225,11 @@ export class Game {
         initialCoords: Coords;
         targetCoords: Coords;
       }) => {
-        this.renderer.playAnimations(
-          new MoveAnimation({
-            targetCoords,
+        this.renderer.startMotion(
+          new Movement({
             initialCoords,
-            duration: 200,
+            targetCoords,
+            duration: 150,
           }),
         );
       },
