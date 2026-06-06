@@ -2,6 +2,7 @@ import type { Motion } from '../../types/Motion';
 import { Coords } from '../Coords';
 
 export class Movement implements Motion {
+  unitId: string;
   duration: number;
   isFinished = false;
   currentCoords: Coords;
@@ -10,14 +11,17 @@ export class Movement implements Motion {
   private startTime = Date.now();
 
   constructor({
+    unitId,
     initialCoords,
     targetCoords,
     duration,
   }: {
+    unitId: string;
     initialCoords: Coords;
     targetCoords: Coords;
     duration: number;
   }) {
+    this.unitId = unitId;
     this.currentCoords = initialCoords;
     this.initialCoords = initialCoords;
     this.targetCoords = targetCoords;

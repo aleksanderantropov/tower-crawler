@@ -15,7 +15,7 @@ import { Coords } from './Coords';
 import { EnemyManager } from './EnemyManager';
 import { GameInput } from './GameInput';
 import { ItemManager } from './ItemManager';
-import { Map } from './Map';
+import { GameMap } from './GameMap';
 import { MenuInput } from './MenuInput';
 import { Player } from './Player';
 import { Renderer } from './Renderer';
@@ -23,7 +23,7 @@ import { UI } from './UI';
 import { Visibility } from './Visibility';
 
 export class Game {
-  private map!: Map;
+  private map!: GameMap;
   private visibility!: Visibility;
   private renderer: Renderer;
   private player!: Player;
@@ -42,7 +42,7 @@ export class Game {
 
   private initialize(): void {
     this.ui = new UI(this.settings.ui);
-    this.map = new Map(this.settings.gameMap);
+    this.map = new GameMap(this.settings.gameMap);
     this.visibility = new Visibility(this.settings.gameMap);
     this.itemManager = new ItemManager(this.settings.items);
 
@@ -227,6 +227,7 @@ export class Game {
       }) => {
         this.renderer.startMotion(
           new Movement({
+            unitId: this.player.id,
             initialCoords,
             targetCoords,
             duration: 150,

@@ -2,7 +2,7 @@ import type { Settings } from '../configs/settings';
 import { Coords } from './Coords';
 import { TileType } from '../types/TileType';
 import { VisibilityType } from '../types/VisibilityType';
-import type { Map } from './Map';
+import type { GameMap } from './GameMap';
 import type { Player } from './Player';
 
 export class Visibility {
@@ -23,7 +23,7 @@ export class Visibility {
     );
   }
 
-  update(player: Player, mapTiles: Map['tiles']): void {
+  update(player: Player, mapTiles: GameMap['tiles']): void {
     // Mark all VISIBLE as REVEALED
     this.visibleTiles.forEach(
       ({ x, y }) => (this.tiles[y][x] = VisibilityType.REVEALED),

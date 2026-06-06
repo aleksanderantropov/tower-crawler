@@ -9,6 +9,7 @@ import type { Enemy } from './Enemy';
 import type { Item } from './Item';
 
 export class Player implements Combatant {
+  id = crypto.randomUUID();
   currentHp!: number;
   maxHp: number;
   basePower: number;

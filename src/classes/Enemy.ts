@@ -3,12 +3,13 @@ import type { Combatant } from '../types/Combatant';
 import type { EnemyType } from '../types/EnemyType';
 import { Coords } from './Coords';
 import { Emitter } from './Emitter';
-import { Map } from './Map';
+import { GameMap } from './GameMap';
 
 type EnemyStats = Settings['enemies']['stats'][EnemyType];
 type EnemyLootTable = Settings['enemies']['lootTable'][EnemyType];
 
 export class Enemy implements Combatant {
+  id = crypto.randomUUID();
   currentHp!: number;
   coords: Coords;
   type: EnemyStats['type'];
@@ -49,7 +50,7 @@ export class Enemy implements Combatant {
   }
 
   isWithinAggroRadius(tile: Coords): boolean {
-    const dist = Map.calcDistance(this.coords, tile);
+    const dist = GameMap.calcDistance(this.coords, tile);
 
     return dist <= this.viewRadius;
   }
@@ -59,7 +60,7 @@ export class Enemy implements Combatant {
       return;
     }
 
-    const dist = Map.calcDistance(this.coords, target.coords);
+    const dist = GameMap.calcDistance(this.coords, target.coords);
 
     if (dist === 1) {
       this.attack(target);

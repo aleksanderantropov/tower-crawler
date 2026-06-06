@@ -6,7 +6,7 @@ import { VisibilityType } from '../types/VisibilityType';
 import { Coords } from './Coords';
 import type { Enemy } from './Enemy';
 import type { Item } from './Item';
-import type { Map } from './Map';
+import type { GameMap } from './GameMap';
 import type { Player } from './Player';
 import type { Visibility } from './Visibility';
 
@@ -14,7 +14,7 @@ export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   animations: Animation[] = [];
-  motions: Motion[] = [];
+  motions = new Map<string, Motion>();
 
   constructor(private settings: Settings['renderer']) {
     this.canvas = document.getElementById(
@@ -32,7 +32,7 @@ export class Renderer {
     enemies,
     items,
   }: {
-    tiles: Map['tiles'];
+    tiles: GameMap['tiles'];
     visibility: Visibility['tiles'];
     player: Player;
     enemies: Enemy[];
@@ -51,7 +51,7 @@ export class Renderer {
   }
 
   startMotion(motion: Motion): void {
-    this.motions.push(motion);
+    this.motions.set(motion.unitId, motion);
   }
 
   private drawWorld({
@@ -63,7 +63,7 @@ export class Renderer {
   }: Parameters<Renderer['render']>[0]): void {
     this.ctx.save();
 
-    const playerCoords = this.calcPlayerIntermediateCoords(player.coords);
+    const playerCoords = this.calcPlayerIntermediateCoords(player);
 
     this.centerCameraOnPlayer(playerCoords);
     this.renderAnimation(AnimationRenderingPhase.PRE);
@@ -76,8 +76,8 @@ export class Renderer {
     this.ctx.restore();
   }
 
-  private calcPlayerIntermediateCoords(player: Coords): Coords {
-    return this.motions[0]?.currentCoords ?? player;
+  private calcPlayerIntermediateCoords(player: Player): Coords {
+    return this.motions.get(player.id)?.currentCoords ?? player.coords;
   }
 
   private drawMinimap({
@@ -144,11 +144,13 @@ export class Renderer {
   }
 
   private updateMotions() {
-    this.motions = this.motions.filter((motion) => !motion.isFinished);
-
-    this.motions.forEach((motion) => {
-      motion.update();
-    });
+    for (const [unitId, motion] of this.motions.entries()) {
+      if (motion.isFinished) {
+        this.motions.delete(unitId);
+      } else {
+        motion.update();
+      }
+    }
   }
 
   private drawMap({
@@ -156,7 +158,7 @@ export class Renderer {
     visibility,
     size,
   }: {
-    tiles: Map['tiles'];
+    tiles: GameMap['tiles'];
     visibility: Visibility['tiles'];
     size: number;
   }): void {

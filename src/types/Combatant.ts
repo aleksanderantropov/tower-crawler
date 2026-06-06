@@ -1,6 +1,7 @@
 import type { Coords } from '../classes/Coords';
 
 export type Combatant = {
+  id: string;
   currentHp: number;
   maxHp: number;
   power: number;
